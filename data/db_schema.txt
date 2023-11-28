@@ -1,0 +1,40 @@
+// https://dbdiagram.io/d
+
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table calf {
+  ear_tag integer [pk]
+  birthdate timestamp
+  gender string
+}
+
+Table weight {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  last timestamp
+  kg integer
+}
+
+Table bolvato1 {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
+
+Table dehorn {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
+
+Table restall {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
+
+Table sell {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
