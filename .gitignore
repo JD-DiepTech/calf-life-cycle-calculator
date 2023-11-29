@@ -2,8 +2,8 @@
 .idea
 venv
 
-data
+/data
 
-test/.pytest_cache
-test/test.db
-test/test_2.db
+/tests/.pytest_cache
+/tests/test.db
+/tests/test_2.db
