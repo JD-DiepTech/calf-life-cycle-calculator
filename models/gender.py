@@ -5,6 +5,9 @@ class Gender(Enum):
     Male = "m"
     Female = "w"
 
+    def __str__(self):
+        return self.value
+
     @classmethod
     def from_str(cls, gender_str):
         for gender in cls:
