@@ -1,5 +1,9 @@
 .git
 .idea
 venv
-test/.pytest_cache
+
 data
+
+test/.pytest_cache
+test/test.db
+test/test_2.db
