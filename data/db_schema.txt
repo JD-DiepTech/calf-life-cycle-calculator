@@ -11,11 +11,11 @@ Table calf {
 
 Table weight {
   ear_tag integer [pk, ref: - calf.ear_tag]
-  last timestamp
+  date timestamp [pk]
   kg integer
 }
 
-Table bolvato1 {
+Table bovalto1 {
   ear_tag integer [pk, ref: - calf.ear_tag]
   planned timestamp
   actual timestamp
@@ -34,6 +34,24 @@ Table restall {
 }
 
 Table sell {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
+
+Table bovalto2 {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
+
+Table ringworm1 {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
+}
+
+Table ringworm2 {
   ear_tag integer [pk, ref: - calf.ear_tag]
   planned timestamp
   actual timestamp
