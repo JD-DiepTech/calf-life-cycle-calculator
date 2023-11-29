@@ -6,6 +6,7 @@
 Table calf {
   ear_tag integer [pk]
   gender string
+  type string
 }
 
 Table weight {
