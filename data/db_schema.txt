@@ -5,7 +5,6 @@
 
 Table calf {
   ear_tag integer [pk]
-  birthdate timestamp
   gender string
 }
 
@@ -13,6 +12,12 @@ Table weight {
   ear_tag integer [pk, ref: - calf.ear_tag]
   date timestamp [pk]
   kg integer
+}
+
+Table birth {
+  ear_tag integer [pk, ref: - calf.ear_tag]
+  planned timestamp
+  actual timestamp
 }
 
 Table bovalto1 {
