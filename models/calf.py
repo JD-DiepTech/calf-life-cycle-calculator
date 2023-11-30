@@ -277,7 +277,7 @@ class BreedingCalf(Calf):
 
         self.__update_treatments()
 
-    def reset_ringworm(self, bovalto2: Bovalto2):
+    def recalc_ringworm(self, bovalto2: Bovalto2):
         """
             Reset the ringworm treatments based on the Bovalto2 treatment
         :param bovalto2: Bovalto 2 treatment used as base
