@@ -1,9 +1,13 @@
 /.git
-/.idea
 /venv
 
-/data
+# Add maybe later
+/.idea
+
+# Remove all DBs
+/*.db
+/*.sqlite
+/*/*.db
+/*/*.sqlite
 
 /tests/.pytest_cache
-/tests/test.db
-/tests/test_2.db
