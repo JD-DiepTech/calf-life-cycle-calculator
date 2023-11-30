@@ -54,7 +54,7 @@ def main():
 
         farm.add_calf(calf)
 
-    with DatabaseHandler(db_type="sqlite", db_name="calf_data_test.sqlite") as db:
+    with DatabaseHandler(db_type="sqlite", db_name="calf_data_test_new.sqlite") as db:
         db.save_farm(farm)
 
 
