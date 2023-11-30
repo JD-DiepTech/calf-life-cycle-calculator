@@ -110,77 +110,77 @@ class TestTreatmentOperations:
         assert setup_ringworm2.expected_date == dt.date(2024, 1, 9)
 
     def test_birth_modification(self, setup_birth):
-        setup_birth.actual_date = dt.date(2023, 11, 21)
+        setup_birth.update(dt.date(2023, 11, 21))
         assert setup_birth.expected_date == dt.date(2023, 11, 20)
         assert setup_birth.actual_date == dt.date(2023, 11, 21)
 
     def test_bovalto1_modification(self, setup_bovalto1):
-        setup_bovalto1.actual_date = dt.date(2023, 12, 1)
+        setup_bovalto1.update(dt.date(2023, 12, 1))
         assert setup_bovalto1.expected_date == dt.date(2023, 11, 30)
         assert setup_bovalto1.actual_date == dt.date(2023, 12, 1)
 
     def test_bovalto1_reference_modification(self, setup_birth):
-        setup_birth.actual_date = dt.date(2023, 11, 21)
+        setup_birth.update(dt.date(2023, 11, 21))
         bovalto1 = Bovalto1(setup_birth)
         assert bovalto1.expected_date == dt.date(2023, 12, 1)
 
     def test_dehorn_modification(self, setup_dehorn):
-        setup_dehorn.actual_date = dt.date(2023, 12, 6)
+        setup_dehorn.update(dt.date(2023, 12, 6))
         assert setup_dehorn.expected_date == dt.date(2023, 12, 5)
         assert setup_dehorn.actual_date == dt.date(2023, 12, 6)
 
     def test_dehorn_reference_modification(self, setup_bovalto1):
-        setup_bovalto1.actual_date = dt.date(2023, 12, 1)
+        setup_bovalto1.update(dt.date(2023, 12, 1))
         dehorn = Dehorn(setup_bovalto1)
         assert dehorn.expected_date == dt.date(2023, 12, 6)
 
     def test_restall_modification(self, setup_restall):
-        setup_restall.actual_date = dt.date(2023, 12, 12)
+        setup_restall.update(dt.date(2023, 12, 12))
         assert setup_restall.expected_date == dt.date(2023, 12, 11)
         assert setup_restall.actual_date == dt.date(2023, 12, 12)
 
     def test_restall_reference_modification(self, setup_dehorn):
-        setup_dehorn.actual_date = dt.date(2023, 12, 6)
+        setup_dehorn.update(dt.date(2023, 12, 6))
         restall = Restall(setup_dehorn)
         assert restall.expected_date == dt.date(2023, 12, 11)
 
     def test_sell_modification(self, setup_sell):
-        setup_sell.actual_date = dt.date(2023, 12, 20)
+        setup_sell.update(dt.date(2023, 12, 20))
         assert setup_sell.expected_date == dt.date(2023, 12, 19)
         assert setup_sell.actual_date == dt.date(2023, 12, 20)
 
     def test_sell_reference_modification(self, setup_birth):
-        setup_birth.actual_date = dt.date(2023, 11, 21)
+        setup_birth.update(dt.date(2023, 11, 21))
         sell = Sell(setup_birth)
         assert sell.expected_date == dt.date(2023, 12, 19)
 
     def test_bovalto2_modification(self, setup_bovalto2):
-        setup_bovalto2.actual_date = dt.date(2023, 12, 22)
+        setup_bovalto2.update(dt.date(2023, 12, 22))
         assert setup_bovalto2.expected_date == dt.date(2023, 12, 21)
         assert setup_bovalto2.actual_date == dt.date(2023, 12, 22)
 
     def test_bovalto2_reference_modification(self, setup_bovalto1):
-        setup_bovalto1.actual_date = dt.date(2023, 12, 1)
+        setup_bovalto1.update(dt.date(2023, 12, 1))
         bovalto2 = Bovalto2(setup_bovalto1)
         assert bovalto2.expected_date == dt.date(2023, 12, 22)
 
     def test_ringworm1_modification(self, setup_ringworm1):
-        setup_ringworm1.actual_date = dt.date(2023, 12, 27)
+        setup_ringworm1.update(dt.date(2023, 12, 27))
         assert setup_ringworm1.expected_date == dt.date(2023, 12, 26)
         assert setup_ringworm1.actual_date == dt.date(2023, 12, 27)
 
     def test_ringworm1_reference_modification(self, setup_bovalto2):
-        setup_bovalto2.actual_date = dt.date(2023, 12, 22)
+        setup_bovalto2.update(dt.date(2023, 12, 22))
         ringworm1 = Ringworm1(setup_bovalto2)
         assert ringworm1.expected_date == dt.date(2023, 12, 27)
 
     def test_ringworm2_modification(self, setup_ringworm2):
-        setup_ringworm2.actual_date = dt.date(2024, 1, 10)
+        setup_ringworm2.update(dt.date(2024, 1, 10))
         assert setup_ringworm2.expected_date == dt.date(2024, 1, 9)
         assert setup_ringworm2.actual_date == dt.date(2024, 1, 10)
 
     def test_ringworm2_reference_modification(self, setup_ringworm1):
-        setup_ringworm1.actual_date = dt.date(2023, 12, 27)
+        setup_ringworm1.update(dt.date(2023, 12, 27))
         ringworm2 = Ringworm2(setup_ringworm1)
         assert ringworm2.expected_date == dt.date(2024, 1, 10)
 
@@ -240,24 +240,24 @@ class TestTreatmentOperations:
         birth = Birth(dt.date(2023, 11, 20))
         assert setup_birth == birth
 
-        birth.actual_date = dt.date(2023, 11, 21)
+        birth.update(dt.date(2023, 11, 21))
         assert setup_birth < birth
 
-        birth.actual_date = None
-        setup_birth.actual_date = dt.date(2023, 11, 21)
+        birth._ACTUAL_DATE = None
+        setup_birth.update(dt.date(2023, 11, 21))
         assert setup_birth > birth
 
-        setup_birth.actual_date = None
-        birth.actual_date = None
+        setup_birth._ACTUAL_DATE = None
+        birth._ACTUAL_DATE = None
         assert setup_birth == birth
 
     def test_get_week(self, setup_birth):
         assert setup_birth.get_week() == 47
 
-        setup_birth.actual_date = dt.date(2023, 11, 27)
+        setup_birth.update(dt.date(2023, 11, 27))
         assert setup_birth.get_week() == 48
 
-        setup_birth.actual_date = None
+        setup_birth._ACTUAL_DATE = None
         assert setup_birth.get_week() == 47
 
     def test_list_operations(self):
