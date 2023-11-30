@@ -27,6 +27,10 @@ class Treatment:
     def expected_date(self) -> dt.date:
         return self._EXPECTED_DATE
 
+    @property
+    def actual_date(self) -> dt.date | None:
+        return self._ACTUAL_DATE
+
     def __str__(self):
         return f"{self.display_name.ljust(9)}: {self.expected_date}"
 
