@@ -26,10 +26,6 @@ class Calf:
     bovalto_1: Bovalto1
     dehorn: Dehorn | None
     restall: Restall
-    sell: Sell | None
-    bovalto_2: Bovalto2 | None
-    ringworm_1: Ringworm1 | None
-    ringworm_2: Ringworm2 | None
 
     @property
     def birthday(self) -> dt.date:
