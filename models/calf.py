@@ -47,6 +47,10 @@ class Calf:
     def treatments(self):
         return self._TREATMENTS
 
+    @property
+    def calf_type(self):
+        return self.__class__.__name__.lower().replace("calf", "")
+
     def __lt__(self, other):
         return self.birthday < other.birthday
 

@@ -212,3 +212,13 @@ class TestCalfOperations:
         calf.edit_ringworm2(dt.date(2024, 1, 9))
 
         assert calf.ringworm_2.actual_date == dt.date(2024, 1, 9)
+
+
+class TestFatteningCalf:
+    def test_calf_type(self, setup_fattening_calf):
+        assert setup_fattening_calf.calf_type == "fattening"
+
+
+class TestBreedingCalf:
+    def test_calf_type(self, setup_breeding_calf):
+        assert setup_breeding_calf.calf_type == "breeding"
