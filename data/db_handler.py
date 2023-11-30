@@ -542,9 +542,6 @@ class DatabaseHandler:
         else:
             raise ValueError("Unsupported calf type")
 
-        if birth_actual is not None:
-            calf.edit_birth(birth_actual)
-
         # TODO: Implement the weight of a calf
         # Fetch weight data
         # weight_data = self.fetch_weight_data(ear_tag)
