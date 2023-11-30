@@ -9,5 +9,11 @@
 /*.sqlite
 /*/*.db
 /*/*.sqlite
+/*.xlsx
+/*.csv
+/*/*.xlsx
+/*/*.csv
+
 
 /tests/.pytest_cache
+
