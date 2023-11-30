@@ -21,6 +21,7 @@ from models.treatment import (
 )
 from models.gender import Gender
 from models.calf import BreedingCalf, FatteningCalf
+from models.farm import Farm
 import datetime as dt
 
 database_creation_script = f"""
@@ -120,6 +121,19 @@ def create_database():
 
 
 class DatabaseHandler:
+    required_tables = [
+        "calf",
+        "weight",
+        "birth",
+        "bovalto1",
+        "dehorn",
+        "restall",
+        "sell",
+        "bovalto2",
+        "ringworm1",
+        "ringworm2",
+    ]
+
     def __init__(self, db_name="data/calf_data.db", db_type="sqlite"):
         self.db_type = db_type
         self.db_name = db_name
@@ -134,12 +148,33 @@ class DatabaseHandler:
         # WARNING: This creates a difference between different types of databases
         if self.db_type == "memory":
             self.execute_query(database_creation_script)
+        elif self.db_type == "sqlite":
+            # Sanity check: Check if the database is not initialized yet
+            if not self.check_all_tables_exist():
+                # Create the database
+                self.execute_query(database_creation_script)
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         print("Closing database connection...")
         self.close()
+
+    def check_all_tables_exist(self) -> bool:
+        all_tables_exist = True
+        existing_tables = []
+        # Retrieve the list of tables in the database
+        self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        rows = self.cursor.fetchall()
+        for row in rows:
+            existing_tables.append(row[0])
+
+        # Check if all required tables exist
+        for table in self.required_tables:
+            if table not in existing_tables:
+                all_tables_exist = False
+
+        return all_tables_exist
 
     def connect(self) -> sqlite3.Connection:
         if self.db_type == "sqlite":
@@ -388,7 +423,7 @@ class DatabaseHandler:
         )
 
     def save_breeding_calf(self, calf: BreedingCalf):
-        self.insert_calf_data(calf.ear_tag, calf.gender, "breeding")
+        self.insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
         self.insert_birth_data(
             calf.ear_tag, calf.birth.expected_date, calf.birth.actual_date
         )
@@ -413,7 +448,7 @@ class DatabaseHandler:
         )
 
     def save_fattening_calf(self, calf: FatteningCalf):
-        self.insert_calf_data(calf.ear_tag, calf.gender, "fattening")
+        self.insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
         self.insert_birth_data(
             calf.ear_tag, calf.birth.expected_date, calf.birth.actual_date
         )
@@ -438,6 +473,10 @@ class DatabaseHandler:
             self.save_fattening_calf(calf)
         else:
             raise ValueError("Unsupported calf type")
+
+    def save_farm(self, farm: Farm):
+        for calf in farm.get_calves():
+            self.save_calf(calf)
 
     def fetch_calf(self, ear_tag: int) -> BreedingCalf | FatteningCalf | None:
         """
