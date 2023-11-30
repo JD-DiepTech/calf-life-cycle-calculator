@@ -559,10 +559,77 @@ class TestDatabaseHandlerIntegration:
                 12,
                 5,
             )
+            assert retrieved_calf.dehorn.actual_date is None
             assert retrieved_calf.restall.expected_date == dt.date(2023, 12, 11)
             assert retrieved_calf.restall.actual_date is None
             assert retrieved_calf.sell.expected_date == dt.date(2023, 12, 19)
             assert retrieved_calf.sell.actual_date is None
+
+    def test_fetch_fattening_calf_modified(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf = FatteningCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+
+            # The edition of one attribute will update the others
+            calf.edit_birth(dt.date(2023, 11, 21))
+            calf.edit_bovalto1(dt.date(2023, 12, 2))
+            calf.edit_dehorn(dt.date(2023, 12, 8))
+            calf.edit_restall(dt.date(2023, 12, 15))
+            calf.edit_sell(dt.date(2023, 12, 20))
+
+            db_handler.save_calf(calf)
+
+            retrieved_calf = db_handler.fetch_calf(12345)
+            assert retrieved_calf is not None
+            assert retrieved_calf.ear_tag == 12345
+            assert retrieved_calf.gender == Gender.Female
+            assert retrieved_calf.dehorning_required == True
+            assert retrieved_calf.birth.expected_date == dt.date(2023, 11, 20)
+            assert retrieved_calf.birth.actual_date == dt.date(2023, 11, 21)
+            assert retrieved_calf.bovalto_1.expected_date == dt.date(2023, 12, 1)
+            assert retrieved_calf.bovalto_1.actual_date == dt.date(2023, 12, 2)
+            assert retrieved_calf.dehorn is not None
+            assert retrieved_calf.dehorn.expected_date == dt.date(
+                2023,
+                12,
+                7,
+            )
+            assert retrieved_calf.dehorn.actual_date == dt.date(2023, 12, 8)
+            assert retrieved_calf.restall.expected_date == dt.date(2023, 12, 13)
+            assert retrieved_calf.restall.actual_date == dt.date(2023, 12, 15)
+            assert retrieved_calf.sell.expected_date == dt.date(2023, 12, 19)
+            assert retrieved_calf.sell.actual_date == dt.date(2023, 12, 20)
+
+    def test_fetch_fattening_calf_modified_unrealistic(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf = FatteningCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+
+            # The reset of one attribute will not affect the others
+            planned = dt.date(2000, 1, 1)
+            actual = dt.date(1972, 2, 2)
+            calf.birth.reset(planned, actual)
+            calf.bovalto_1.reset(planned, actual)
+            calf.dehorn.reset(planned, actual)
+            calf.restall.reset(planned, actual)
+            calf.sell.reset(planned, actual)
+
+            db_handler.save_calf(calf)
+
+            retrieved_calf = db_handler.fetch_calf(12345)
+            assert retrieved_calf is not None
+            assert retrieved_calf.ear_tag == 12345
+            assert retrieved_calf.gender == Gender.Female
+            assert retrieved_calf.dehorning_required == True
+            assert retrieved_calf.birth.expected_date == planned
+            assert retrieved_calf.birth.actual_date == actual
+            assert retrieved_calf.bovalto_1.expected_date == planned
+            assert retrieved_calf.bovalto_1.actual_date == actual
+            assert retrieved_calf.dehorn is not None
+            assert retrieved_calf.dehorn.expected_date == planned
+            assert retrieved_calf.dehorn.actual_date == actual
+            assert retrieved_calf.restall.expected_date == planned
+            assert retrieved_calf.restall.actual_date == actual
+            assert retrieved_calf.sell.expected_date == planned
+            assert retrieved_calf.sell.actual_date == actual
 
     def test_fetch_fattening_calf_without_dehorning(self):
         with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
@@ -606,6 +673,7 @@ class TestDatabaseHandlerIntegration:
                 12,
                 5,
             )
+            assert retrieved_calf.dehorn.actual_date is None
             assert retrieved_calf.restall.expected_date == dt.date(2023, 12, 11)
             assert retrieved_calf.restall.actual_date is None
             assert retrieved_calf.bovalto_2.expected_date == dt.date(2023, 12, 21)
@@ -614,6 +682,84 @@ class TestDatabaseHandlerIntegration:
             assert retrieved_calf.ringworm_1.actual_date is None
             assert retrieved_calf.ringworm_2.expected_date == dt.date(2024, 1, 9)
             assert retrieved_calf.ringworm_2.actual_date is None
+
+    def test_fetch_fattening_calf_modified(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+
+            # The edition of one attribute will update the others
+            calf.edit_birth(dt.date(2023, 11, 21))
+            calf.edit_bovalto1(dt.date(2023, 12, 2))
+            calf.edit_dehorn(dt.date(2023, 12, 8))
+            calf.edit_restall(dt.date(2023, 12, 15))
+            calf.edit_bovalto2(dt.date(2023, 12, 26))
+            calf.edit_ringworm1(dt.date(2024, 1, 2))
+            calf.edit_ringworm2(dt.date(2024, 1, 17))
+
+            db_handler.save_calf(calf)
+
+            retrieved_calf = db_handler.fetch_calf(12345)
+            assert retrieved_calf is not None
+            assert retrieved_calf.ear_tag == 12345
+            assert retrieved_calf.gender == Gender.Female
+            assert retrieved_calf.dehorning_required == True
+            assert retrieved_calf.birth.expected_date == dt.date(2023, 11, 20)
+            assert retrieved_calf.birth.actual_date == dt.date(2023, 11, 21)
+            assert retrieved_calf.bovalto_1.expected_date == dt.date(2023, 12, 1)
+            assert retrieved_calf.bovalto_1.actual_date == dt.date(2023, 12, 2)
+            assert retrieved_calf.dehorn is not None
+            assert retrieved_calf.dehorn.expected_date == dt.date(
+                2023,
+                12,
+                7,
+            )
+            assert retrieved_calf.dehorn.actual_date == dt.date(2023, 12, 8)
+            assert retrieved_calf.restall.expected_date == dt.date(2023, 12, 13)
+            assert retrieved_calf.restall.actual_date == dt.date(2023, 12, 15)
+            assert retrieved_calf.bovalto_2.expected_date == dt.date(2023, 12, 25)
+            assert retrieved_calf.bovalto_2.actual_date == dt.date(2023, 12, 26)
+            assert retrieved_calf.ringworm_1.expected_date == dt.date(2024, 1, 1)
+            assert retrieved_calf.ringworm_1.actual_date == dt.date(2024, 1, 2)
+            assert retrieved_calf.ringworm_2.expected_date == dt.date(2024, 1, 16)
+            assert retrieved_calf.ringworm_2.actual_date == dt.date(2024, 1, 17)
+
+    def test_fetch_fattening_calf_modified_unrealistic(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+
+            # The reset of one attribute will not affect the others
+            planned = dt.date(2000, 1, 1)
+            actual = dt.date(1972, 2, 2)
+            calf.birth.reset(planned, actual)
+            calf.bovalto_1.reset(planned, actual)
+            calf.dehorn.reset(planned, actual)
+            calf.restall.reset(planned, actual)
+            calf.bovalto_2.reset(planned, actual)
+            calf.ringworm_1.reset(planned, actual)
+            calf.ringworm_2.reset(planned, actual)
+
+            db_handler.save_calf(calf)
+
+            retrieved_calf = db_handler.fetch_calf(12345)
+            assert retrieved_calf is not None
+            assert retrieved_calf.ear_tag == 12345
+            assert retrieved_calf.gender == Gender.Female
+            assert retrieved_calf.dehorning_required == True
+            assert retrieved_calf.birth.expected_date == planned
+            assert retrieved_calf.birth.actual_date == actual
+            assert retrieved_calf.bovalto_1.expected_date == planned
+            assert retrieved_calf.bovalto_1.actual_date == actual
+            assert retrieved_calf.dehorn is not None
+            assert retrieved_calf.dehorn.expected_date == planned
+            assert retrieved_calf.dehorn.actual_date == actual
+            assert retrieved_calf.restall.expected_date == planned
+            assert retrieved_calf.restall.actual_date == actual
+            assert retrieved_calf.bovalto_2.expected_date == planned
+            assert retrieved_calf.bovalto_2.actual_date == actual
+            assert retrieved_calf.ringworm_1.expected_date == planned
+            assert retrieved_calf.ringworm_1.actual_date == actual
+            assert retrieved_calf.ringworm_2.expected_date == planned
+            assert retrieved_calf.ringworm_2.actual_date == actual
 
     def test_fetch_breeding_calf_without_dehorning(self):
         with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
