@@ -133,6 +133,26 @@ class FatteningCalf(Calf):
     def __str__(self):
         return f"FatteningCalf({self.ear_tag})"
 
+    def reset(
+        self,
+        birth: Birth,
+        bovalto1: Bovalto1,
+        dehorn: Dehorn | None,
+        restall: Restall,
+        sell: Sell,
+    ):
+        self.birth = birth
+        self.bovalto_1 = bovalto1
+
+        if dehorn is None:
+            self._DEHORNING_REQUIRED = False
+        self.dehorn = dehorn
+
+        self.restall = restall
+        self.sell = sell
+
+        self.__update_treatments()
+
     def __update_treatments(self):
         self._TREATMENTS = [self.bovalto_1, self.dehorn, self.restall, self.sell]
 
@@ -213,6 +233,30 @@ class BreedingCalf(Calf):
             self.ringworm_1,
             self.ringworm_2,
         ]
+
+    def reset(
+        self,
+        birth: Birth,
+        bovalto1: Bovalto1,
+        dehorn: Dehorn | None,
+        restall: Restall,
+        bovalto2: Bovalto2,
+        ringworm1: Ringworm1,
+        ringworm2: Ringworm2,
+    ):
+        self.birth = birth
+        self.bovalto_1 = bovalto1
+
+        if dehorn is None:
+            self._DEHORNING_REQUIRED = False
+        self.dehorn = dehorn
+
+        self.restall = restall
+        self.bovalto_2 = bovalto2
+        self.ringworm_1 = ringworm1
+        self.ringworm_2 = ringworm2
+
+        self.__update_treatments()
 
     def edit_birth(self, date: dt.date):
         self.birth.update(date)
