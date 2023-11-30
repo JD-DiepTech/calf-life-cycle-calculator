@@ -194,7 +194,7 @@ class Farm:
 
                 for calf in self.breeding_calves:
                     if calf.ear_tag in ear_tags_list:
-                        calf.reset_ringworm(max_bovalto2_breeding_calf.bovalto_2)
+                        calf.recalc_ringworm(max_bovalto2_breeding_calf.bovalto_2)
 
                 # print(
                 #     f"The maximum Bovalto2 date among the selected ear tags is: {max_bovalto2_breeding_calf_date}"
