@@ -127,9 +127,9 @@ class Treatment:
         date = prev_treatment._ACTUAL_DATE or prev_treatment.expected_date
         return handle_weekends(date + dt.timedelta(days=rest_days))
 
-    def reset(self, date: dt.date):
-        self._ACTUAL_DATE = None
-        self._EXPECTED_DATE = date
+    def reset(self, planned: dt.date, actual: dt.date | None):
+        self._ACTUAL_DATE = actual
+        self._EXPECTED_DATE = planned
 
     def update(self, date: dt.date):
         self._ACTUAL_DATE = date
