@@ -785,3 +785,25 @@ class TestDatabaseHandlerIntegration:
             assert retrieved_calf.ringworm_1.actual_date is None
             assert retrieved_calf.ringworm_2.expected_date == dt.date(2024, 1, 9)
             assert retrieved_calf.ringworm_2.actual_date is None
+
+    def test_fetch_all_calves(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf_1 = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12341, True)
+            calf_2 = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12342, True)
+            calf_3 = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12343, True)
+            calf_4 = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12344, True)
+            calf_5 = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+
+            calves = [calf_1, calf_2, calf_3, calf_4, calf_5]
+
+            for calf in calves:
+                db_handler.save_calf(calf)
+
+            retrieved_calf = db_handler.fetch_all_calves()
+            assert retrieved_calf is not None
+            assert len(retrieved_calf) == 5
+            assert retrieved_calf[0].ear_tag == 12341
+            assert retrieved_calf[1].ear_tag == 12342
+            assert retrieved_calf[2].ear_tag == 12343
+            assert retrieved_calf[3].ear_tag == 12344
+            assert retrieved_calf[4].ear_tag == 12345

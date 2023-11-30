@@ -589,6 +589,23 @@ class DatabaseHandler:
 
         return calf
 
+    def fetch_all_calves(self) -> list[BreedingCalf | FatteningCalf]:
+        """
+        Fetches all calves from the database and returns them as a list of BreedingCalf and FatteningCalf objects.
+
+        When fetching data from the database it is supposed to be complete.
+        Hence, we will strictly use the data from the database to create the calf object.
+        :return: list of BreedingCalf and FatteningCalf objects
+        """
+        calves = []
+        calf_data = self.fetch_calf_data()
+        for calf in calf_data:
+            ear_tag = calf[0]
+            calf = self.fetch_calf(ear_tag)
+            calves.append(calf)
+
+        return calves
+
     def delete_calf(self, ear_tag: int):
         query = f"""
             DELETE FROM calf WHERE ear_tag = {ear_tag};
