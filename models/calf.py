@@ -85,7 +85,7 @@ class Calf:
         self.birth = Birth(self.birthday)
 
     def edit_dehorn(self, date: dt.date):
-        self.dehorn.actual_date = date
+        self.dehorn.update(date)
         self.restall = Restall(self.dehorn)
 
     def set_dehorn(self, dehorn: Dehorn):
@@ -97,7 +97,7 @@ class Calf:
         self.dehorn = Dehorn(self.bovalto_1) if self.dehorning_required else None
 
         if self.dehorn.expected_date != date:
-            self.dehorn.actual_date = date
+            self.dehorn.update(date)
 
         self.restall = Restall(self.dehorn or self.bovalto_1)
 
@@ -137,7 +137,7 @@ class FatteningCalf(Calf):
         self._TREATMENTS = [self.bovalto_1, self.dehorn, self.restall, self.sell]
 
     def edit_birth(self, date: dt.date):
-        self.birth.actual_date = date
+        self.birth.update(date)
         self.bovalto_1 = Bovalto1(self.birth)
         self.dehorn = Dehorn(self.bovalto_1) if self.dehorning_required else None
         self.restall = Restall(self.dehorn or self.bovalto_1)
@@ -145,7 +145,7 @@ class FatteningCalf(Calf):
         self.__update_treatments()
 
     def edit_bovalto1(self, date: dt.date):
-        self.bovalto_1.actual_date = date
+        self.bovalto_1.update(date)
         self.dehorn = Dehorn(self.bovalto_1) if self.dehorning_required else None
         self.restall = Restall(self.dehorn or self.bovalto_1)
         self.__update_treatments()
@@ -167,11 +167,11 @@ class FatteningCalf(Calf):
         self.__update_treatments()
 
     def edit_restall(self, date: dt.date):
-        self.restall.actual_date = date
+        self.restall.update(date)
         self.__update_treatments()
 
     def edit_sell(self, date: dt.date):
-        self.sell.actual_date = date
+        self.sell.update(date)
         self.__update_treatments()
 
 
@@ -215,7 +215,7 @@ class BreedingCalf(Calf):
         ]
 
     def edit_birth(self, date: dt.date):
-        self.birth.actual_date = date
+        self.birth.update(date)
         self.bovalto_1 = Bovalto1(self.birth)
         self.dehorn = Dehorn(self.bovalto_1) if self.dehorning_required else None
         self.restall = Restall(self.dehorn or self.bovalto_1)
@@ -225,7 +225,7 @@ class BreedingCalf(Calf):
         self.__update_treatments()
 
     def edit_bovalto1(self, date: dt.date):
-        self.bovalto_1.actual_date = date
+        self.bovalto_1.update(date)
         self.dehorn = Dehorn(self.bovalto_1) if self.dehorning_required else None
         self.restall = Restall(self.dehorn or self.bovalto_1)
         self.bovalto_2 = Bovalto2(self.bovalto_1)
@@ -250,18 +250,18 @@ class BreedingCalf(Calf):
         self.__update_treatments()
 
     def edit_restall(self, date: dt.date):
-        self.restall.actual_date = date
+        self.restall.update(date)
         self.__update_treatments()
 
     def edit_bovalto2(self, date: dt.date):
-        self.bovalto_2.actual_date = date
+        self.bovalto_2.update(date)
 
         self.ringworm_1 = Ringworm1(self.bovalto_2)
         self.ringworm_2 = Ringworm2(self.ringworm_1)
         self.__update_treatments()
 
     def edit_ringworm1(self, date: dt.date):
-        self.ringworm_1.actual_date = date
+        self.ringworm_1.update(date)
 
         self.ringworm_2 = Ringworm2(self.ringworm_1)
         self.__update_treatments()
@@ -269,8 +269,8 @@ class BreedingCalf(Calf):
     def set_ringworm1(self, ringworm1: Ringworm1):
         """
             Set the ringworm treatments based on the Ringworm1 treatment
-        :param ringworm1:
-        :return:
+        :param ringworm1: New Ringworm1 treatment or the date of the new Ringworm1 treatment
+        :return: None
         """
         self.ringworm_1 = ringworm1
         self.ringworm_2 = Ringworm2(self.ringworm_1)
@@ -281,7 +281,7 @@ class BreedingCalf(Calf):
         """
             Reset the ringworm treatments based on the Bovalto2 treatment
         :param bovalto2: Bovalto 2 treatment used as base
-        :return:
+        :return: None
         """
         self.ringworm_1 = Ringworm1(bovalto2)
         self.ringworm_2 = Ringworm2(self.ringworm_1)
@@ -289,7 +289,7 @@ class BreedingCalf(Calf):
         self.__update_treatments()
 
     def edit_ringworm2(self, date: dt.date):
-        self.ringworm_2.actual_date = date
+        self.ringworm_2.update(date)
 
         self.__update_treatments()
 
