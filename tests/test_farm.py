@@ -49,9 +49,9 @@ class TestFarm:
         calf_5 = BreedingCalf("2023-11-27", Gender.from_str("m"), 12345, True)
 
         farm.add_calves([calf_1, calf_2, calf_3, calf_4, calf_5])
+        assert len(farm) == 5
         assert farm.get_calves() == [calf_1, calf_2, calf_3, calf_4, calf_5]
         assert farm.get_ear_tags() == [12341, 12342, 12343, 12344, 12345]
-        assert len(farm) == 5
 
     def test_add_calf_same_ear_tag(self):
         farm = Farm()
