@@ -6,7 +6,7 @@ import pandas as pd
 class Treatment:
     _ORDER_ID: int
     _EXPECTED_DATE: dt.date
-    actual_date: dt.date | None
+    _ACTUAL_DATE: dt.date | None
     _NAME: str
     display_name: str
     _REST_DAYS: int
@@ -33,12 +33,12 @@ class Treatment:
     def __lt__(self, other):
         # If they are from the same class, compare by date
         if isinstance(other, type(self)):
-            if self.actual_date and other.actual_date:
-                return self.actual_date < other.actual_date
-            elif self.actual_date and not other.actual_date:
-                return self.actual_date < other.expected_date
-            elif not self.actual_date and other.actual_date:
-                return self.expected_date < other.actual_date
+            if self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self._ACTUAL_DATE < other._ACTUAL_DATE
+            elif self._ACTUAL_DATE and not other._ACTUAL_DATE:
+                return self._ACTUAL_DATE < other.expected_date
+            elif not self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self.expected_date < other._ACTUAL_DATE
             else:
                 return self.expected_date < other.expected_date
 
@@ -48,12 +48,12 @@ class Treatment:
     def __gt__(self, other):
         # If they are from the same class, compare by date
         if isinstance(other, type(self)):
-            if self.actual_date and other.actual_date:
-                return self.actual_date > other.actual_date
-            elif self.actual_date and not other.actual_date:
-                return self.actual_date > other.expected_date
-            elif not self.actual_date and other.actual_date:
-                return self.expected_date > other.actual_date
+            if self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self._ACTUAL_DATE > other._ACTUAL_DATE
+            elif self._ACTUAL_DATE and not other._ACTUAL_DATE:
+                return self._ACTUAL_DATE > other.expected_date
+            elif not self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self.expected_date > other._ACTUAL_DATE
             else:
                 return self.expected_date > other.expected_date
 
@@ -63,12 +63,12 @@ class Treatment:
     def __eq__(self, other):
         # If they are from the same class, compare by date
         if isinstance(other, type(self)):
-            if self.actual_date and other.actual_date:
-                return self.actual_date == other.actual_date
-            elif self.actual_date and not other.actual_date:
-                return self.actual_date == other.expected_date
-            elif not self.actual_date and other.actual_date:
-                return self.expected_date == other.actual_date
+            if self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self._ACTUAL_DATE == other._ACTUAL_DATE
+            elif self._ACTUAL_DATE and not other._ACTUAL_DATE:
+                return self._ACTUAL_DATE == other.expected_date
+            elif not self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self.expected_date == other._ACTUAL_DATE
             else:
                 return self.expected_date == other.expected_date
 
@@ -78,12 +78,12 @@ class Treatment:
     def __le__(self, other):
         # If they are from the same class, compare by date
         if isinstance(other, type(self)):
-            if self.actual_date and other.actual_date:
-                return self.actual_date <= other.actual_date
-            elif self.actual_date and not other.actual_date:
-                return self.actual_date <= other.expected_date
-            elif not self.actual_date and other.actual_date:
-                return self.expected_date <= other.actual_date
+            if self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self._ACTUAL_DATE <= other._ACTUAL_DATE
+            elif self._ACTUAL_DATE and not other._ACTUAL_DATE:
+                return self._ACTUAL_DATE <= other.expected_date
+            elif not self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self.expected_date <= other._ACTUAL_DATE
             else:
                 return self.expected_date <= other.expected_date
 
@@ -93,12 +93,12 @@ class Treatment:
     def __ge__(self, other):
         # If they are from the same class, compare by date
         if isinstance(other, type(self)):
-            if self.actual_date and other.actual_date:
-                return self.actual_date >= other.actual_date
-            elif self.actual_date and not other.actual_date:
-                return self.actual_date >= other.expected_date
-            elif not self.actual_date and other.actual_date:
-                return self.expected_date >= other.actual_date
+            if self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self._ACTUAL_DATE >= other._ACTUAL_DATE
+            elif self._ACTUAL_DATE and not other._ACTUAL_DATE:
+                return self._ACTUAL_DATE >= other.expected_date
+            elif not self._ACTUAL_DATE and other._ACTUAL_DATE:
+                return self.expected_date >= other._ACTUAL_DATE
             else:
                 return self.expected_date >= other.expected_date
 
@@ -111,7 +111,7 @@ class Treatment:
         else:
             self._EXPECTED_DATE = date
 
-        self.actual_date = None
+        self._ACTUAL_DATE = None
         self._NAME = type(self).__name__.lower()
         self.display_name = self._NAME.capitalize()
 
@@ -120,20 +120,20 @@ class Treatment:
             rest_days = self._REST_DAYS
         else:
             raise Exception("Rest days not defined")
-        date = prev_treatment.actual_date or prev_treatment.expected_date
+        date = prev_treatment._ACTUAL_DATE or prev_treatment.expected_date
         return handle_weekends(date + dt.timedelta(days=rest_days))
 
     def update(self, date: dt.date):
-        self.actual_date = date
+        self._ACTUAL_DATE = date
 
     def get_date(self) -> dt.date:
-        return self.actual_date or self.expected_date
+        return self._ACTUAL_DATE or self.expected_date
 
     def get_week(self):
         return (
             self.expected_date.isocalendar().week
-            if not self.actual_date
-            else self.actual_date.isocalendar().week
+            if not self._ACTUAL_DATE
+            else self._ACTUAL_DATE.isocalendar().week
         )
 
 
