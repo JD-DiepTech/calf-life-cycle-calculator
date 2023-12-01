@@ -32,7 +32,7 @@ class Treatment:
         return self._ACTUAL_DATE
 
     def __str__(self):
-        return f"{self.display_name.ljust(9)}: {self.expected_date}"
+        return f"{self.display_name.ljust(9)}: {self.expected_date}, {self.actual_date}"
 
     def __lt__(self, other):
         # If they are from the same class, compare by date
