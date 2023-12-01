@@ -8,7 +8,6 @@ import sys
 #     2. Then, it imports the necessary modules from the models package.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from models.calf import FatteningCalf, BreedingCalf
 from models.farm import Farm
 from models.treatment import (
     Birth,
@@ -20,7 +19,6 @@ from models.treatment import (
     Ringworm1,
     Ringworm2,
 )
-from data.db_handler import DatabaseHandler
 
 import streamlit as st
 import datetime as dt
