@@ -131,7 +131,12 @@ class FatteningCalf(Calf):
         return f"FatteningCalf({self.ear_tag})"
 
     def __str__(self):
-        return f"FatteningCalf({self.ear_tag})"
+        printed_string = f"FatteningCalf({self.ear_tag})\n"
+        printed_string += f"{self.birth}\n"
+        for treatment in self.treatments:
+            printed_string += f"{treatment}\n"
+
+        return printed_string
 
     def reset(
         self,
