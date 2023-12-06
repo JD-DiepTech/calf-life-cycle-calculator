@@ -409,14 +409,14 @@ class DatabaseHandler:
         )
 
     def insert_ringworm1_data(
-        self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
+        self, ear_tag: int, planned: dt.date | None, actual: dt.date | None = None
     ):
         return self.__insert_treatment_data(
             Ringworm1.__name__.lower(), ear_tag, planned, actual
         )
 
     def insert_ringworm2_data(
-        self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
+        self, ear_tag: int, planned: dt.date | None, actual: dt.date | None = None
     ):
         return self.__insert_treatment_data(
             Ringworm2.__name__.lower(), ear_tag, planned, actual
@@ -541,23 +541,35 @@ class DatabaseHandler:
             )
 
             bovalto2_data = self.fetch_bovalto2_data(ear_tag)[0]
-            ringworm1_data = self.fetch_ringworm1_data(ear_tag)[0]
-            ringworm2_data = self.fetch_ringworm2_data(ear_tag)[0]
+            ringworm1_data = self.fetch_ringworm1_data(ear_tag)  # Might be empty
+            ringworm2_data = self.fetch_ringworm2_data(ear_tag)  # Might be empty
 
             bovalto2_planned = bovalto2_data[1]
             bovalto2_actual = bovalto2_data[2]
             bovalto2 = Bovalto2(bovalto1)
             bovalto2.reset(bovalto2_planned, bovalto2_actual)
 
-            ringworm1_planned = ringworm1_data[1]
-            ringworm1_actual = ringworm1_data[2]
-            ringworm1 = Ringworm1(bovalto2)
-            ringworm1.reset(ringworm1_planned, ringworm1_actual)
+            if len(ringworm1_data) > 0:
+                ringworm1_data = ringworm1_data[0]
+                ringworm1_planned = ringworm1_data[1]
+                ringworm1_actual = ringworm1_data[2]
+                ringworm1 = Ringworm1(bovalto2)
+                ringworm1.reset(ringworm1_planned, ringworm1_actual)
+            else:
+                ringworm1_planned = None
+                ringworm1_actual = None
+                ringworm1 = None
 
-            ringworm2_planned = ringworm2_data[1]
-            ringworm2_actual = ringworm2_data[2]
-            ringworm2 = Ringworm2(ringworm1)
-            ringworm2.reset(ringworm2_planned, ringworm2_actual)
+            if len(ringworm2_data) > 0:
+                ringworm2_data = ringworm2_data[0]
+                ringworm2_planned = ringworm2_data[1]
+                ringworm2_actual = ringworm2_data[2]
+                ringworm2 = Ringworm2(ringworm1)
+                ringworm2.reset(ringworm2_planned, ringworm2_actual)
+            else:
+                ringworm2_planned = None
+                ringworm2_actual = None
+                ringworm2 = None
 
             calf.reset(birth, bovalto1, dehorn, restall, bovalto2, ringworm1, ringworm2)
 

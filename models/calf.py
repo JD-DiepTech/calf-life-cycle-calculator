@@ -246,8 +246,8 @@ class BreedingCalf(Calf):
         dehorn: Dehorn | None,
         restall: Restall,
         bovalto2: Bovalto2,
-        ringworm1: Ringworm1,
-        ringworm2: Ringworm2,
+        ringworm1: Ringworm1 | None,
+        ringworm2: Ringworm2 | None,
     ):
         self.birth = birth
         self.bovalto_1 = bovalto1
