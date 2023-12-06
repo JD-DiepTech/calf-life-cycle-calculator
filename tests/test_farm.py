@@ -75,6 +75,17 @@ class TestFarm:
         farm.delete_calf(12345)
         assert len(farm) == 0
 
+    def test_change_ear_tag(self):
+        farm = Farm()
+        calf = BreedingCalf("2023-11-20", Gender.from_str("m"), 12345, True)
+        farm.add_calf(calf)
+        assert len(farm) == 1
+        assert farm.get_calf(12345) == calf
+
+        farm.change_ear_tag(12345, 54321)
+        assert len(farm) == 1
+        assert farm.get_calf(54321) == calf
+
     def test_ringworm_creation_born_same_date(self):
         farm = Farm()
         calf_1 = BreedingCalf("2023-11-20", Gender.from_str("m"), 12341, True)

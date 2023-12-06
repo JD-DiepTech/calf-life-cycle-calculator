@@ -1,4 +1,4 @@
-from models.calf import FatteningCalf, BreedingCalf
+from models.calf import FatteningCalf, BreedingCalf, Calf
 from models.gender import Gender
 import pytest
 import datetime as dt
@@ -21,6 +21,11 @@ def setup_fattening_calf():
 @pytest.fixture(scope="function")
 def setup_breeding_calf():
     return BreedingCalf("2023-11-20", Gender.from_str("m"), 12345, True)
+
+
+@pytest.fixture(scope="function")
+def setup_calf():
+    return Calf("2023-11-20", Gender.from_str("m"), 12345, True)
 
 
 class TestCalfOperations:
@@ -212,6 +217,11 @@ class TestCalfOperations:
         calf.edit_ringworm2(dt.date(2024, 1, 9))
 
         assert calf.ringworm_2.actual_date == dt.date(2024, 1, 9)
+
+    def test_change_ear_tag(self, setup_calf):
+        assert setup_calf.ear_tag == 12345
+        setup_calf.change_ear_tag(54321)
+        assert setup_calf.ear_tag == 54321
 
 
 class TestFatteningCalf:
