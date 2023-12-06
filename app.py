@@ -96,7 +96,11 @@ if expander.button("Add"):
         raise Exception(f"Unknown calf type: {calf_type}")
 
     farm.add_calf(calf)
-    new_farm = farm
+
+    with DatabaseHandler(db_name=DB_PATH) as db:
+        db.save_farm(farm)
+    st.rerun()
+
 
 # -------------- VIEWS --------------
 if show_all_calves:
