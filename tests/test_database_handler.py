@@ -538,6 +538,13 @@ class TestDatabaseHandlerIntegration:
             db_handler.save_calf(calf)
             # Assertion no Exception is raised
 
+    def test_save_calf_without_ringworm(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+            calf.delete_ringworm()
+
+            db_handler.save_calf(calf)
+
     def test_fetch_fattening_calf(self):
         with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
             calf = FatteningCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)

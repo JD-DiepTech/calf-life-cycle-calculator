@@ -440,12 +440,16 @@ class DatabaseHandler:
         self.insert_bovalto2_data(
             calf.ear_tag, calf.bovalto_2.expected_date, calf.bovalto_2.actual_date
         )
-        self.insert_ringworm1_data(
-            calf.ear_tag, calf.ringworm_1.expected_date, calf.ringworm_1.actual_date
-        )
-        self.insert_ringworm2_data(
-            calf.ear_tag, calf.ringworm_2.expected_date, calf.ringworm_2.actual_date
-        )
+
+        if calf.ringworm_1:
+            self.insert_ringworm1_data(
+                calf.ear_tag, calf.ringworm_1.expected_date, calf.ringworm_1.actual_date
+            )
+
+        if calf.ringworm_2:
+            self.insert_ringworm2_data(
+                calf.ear_tag, calf.ringworm_2.expected_date, calf.ringworm_2.actual_date
+            )
 
     def save_fattening_calf(self, calf: FatteningCalf):
         self.insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
