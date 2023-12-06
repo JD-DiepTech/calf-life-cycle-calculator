@@ -71,6 +71,10 @@ class Farm:
         if set_ringworm:
             self.set_ringworm()
 
+    def change_ear_tag(self, old_ear_tag: int, new_ear_tag: int):
+        calf = self.get_calf(old_ear_tag)
+        calf.change_ear_tag(new_ear_tag)
+
     def edit_calf(
         self,
         ear_tag: int,

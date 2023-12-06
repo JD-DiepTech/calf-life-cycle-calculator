@@ -84,6 +84,9 @@ class Calf:
 
         self.birth = Birth(self.birthday)
 
+    def change_ear_tag(self, new_ear_tag: int):
+        self._EAR_TAG = new_ear_tag
+
     def edit_dehorn(self, date: dt.date):
         self.dehorn.update(date)
         self.restall = Restall(self.dehorn)
