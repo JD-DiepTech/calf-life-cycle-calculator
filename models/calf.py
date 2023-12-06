@@ -413,7 +413,13 @@ class BreedingCalf(Calf):
 
         self.__update_treatments()
 
-    def delete_ringworm(self):
+    def delete_ringworm1(self):
         self.ringworm_1 = None
+
+    def delete_ringworm2(self):
         self.ringworm_2 = None
+
+    def delete_ringworm(self):
+        self.delete_ringworm1()
+        self.delete_ringworm2()
         self.__update_treatments()
