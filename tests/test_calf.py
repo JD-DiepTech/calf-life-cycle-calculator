@@ -218,10 +218,41 @@ class TestCalfOperations:
 
         assert calf.ringworm_2.actual_date == dt.date(2024, 1, 9)
 
-    def test_change_ear_tag(self, setup_calf):
-        assert setup_calf.ear_tag == 12345
-        setup_calf.change_ear_tag(54321)
-        assert setup_calf.ear_tag == 54321
+    @pytest.mark.parametrize(
+        "calf",
+        [
+            pytest.param(
+                FatteningCalf("2023-11-20", Gender.from_str("m"), 12345, True),
+                id="fattening_calf",
+            ),
+            pytest.param(
+                BreedingCalf("2023-11-20", Gender.from_str("m"), 12345, True),
+                id="breeding_calf",
+            ),
+        ],
+    )
+    def test_change_ear_tag(self, calf):
+        assert calf.ear_tag == 12345
+        calf.change_ear_tag(54321)
+        assert calf.ear_tag == 54321
+
+    @pytest.mark.parametrize(
+        "calf",
+        [
+            pytest.param(
+                FatteningCalf("2023-11-20", Gender.from_str("m"), 12345, True),
+                id="fattening_calf",
+            ),
+            pytest.param(
+                BreedingCalf("2023-11-20", Gender.from_str("m"), 12345, True),
+                id="breeding_calf",
+            ),
+        ],
+    )
+    def test_edit_gender(self, calf):
+        assert calf.gender == Gender.Male
+        calf.edit_gender(Gender.Female)
+        assert calf.gender == Gender.Female
 
     @pytest.mark.parametrize(
         "calf",
