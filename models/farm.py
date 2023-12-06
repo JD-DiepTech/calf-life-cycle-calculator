@@ -1,3 +1,5 @@
+from datetime import date
+
 from models.calf import FatteningCalf, BreedingCalf
 from models.treatment import (
     Birth,
@@ -9,7 +11,7 @@ from models.treatment import (
     Ringworm1,
     Ringworm2,
 )
-from typing import Type, Union
+from typing import Type, Union, List, Tuple
 import datetime as dt
 
 
@@ -33,11 +35,13 @@ class Farm:
     def __repr__(self):
         return f"Farm({self.fattening_calves}, {self.breeding_calves})"
 
-    def add_calves(self, calves: list[FatteningCalf | BreedingCalf]):
+    def add_calves(
+        self, calves: list[FatteningCalf | BreedingCalf], set_ringworm: bool = True
+    ):
         for calf in calves:
-            self.add_calf(calf)
+            self.add_calf(calf, set_ringworm)
 
-    def add_calf(self, calf: FatteningCalf | BreedingCalf):
+    def add_calf(self, calf: FatteningCalf | BreedingCalf, set_ringworm: bool = True):
         # Ear tags must be unique
         if calf.ear_tag in self.get_ear_tags():
             raise Exception(f"Ear tag {calf.ear_tag} already exists")
@@ -45,7 +49,7 @@ class Farm:
         if isinstance(calf, FatteningCalf):
             self.__add_fattening_calf(calf)
         elif isinstance(calf, BreedingCalf):
-            self.__add_breeding_calf(calf)
+            self.__add_breeding_calf(calf, set_ringworm)
         else:
             raise Exception(
                 f"Calf[{calf.ear_tag}] must be either FatteningCalf or BreedingCalf"
@@ -58,13 +62,14 @@ class Farm:
 
         self.fattening_calves.append(calf)
 
-    def __add_breeding_calf(self, calf: BreedingCalf):
+    def __add_breeding_calf(self, calf: BreedingCalf, set_ringworm: bool = True):
         # Ear tags must be unique
         if calf.ear_tag in self.get_ear_tags():
             raise Exception(f"Ear tag {calf.ear_tag} already exists")
 
         self.breeding_calves.append(calf)
-        self.set_ringworm()
+        if set_ringworm:
+            self.set_ringworm()
 
     def edit_calf(
         self,
@@ -144,22 +149,49 @@ class Farm:
     def get_calves(self) -> list[FatteningCalf | BreedingCalf]:
         return self.fattening_calves + self.breeding_calves
 
+    def get_calves_as_tuple(
+        self,
+    ) -> list[
+        tuple[
+            int, str, date, str, bool, date, date | None, date, date, None, None, None
+        ]
+        | tuple[
+            int,
+            str,
+            date,
+            str,
+            bool,
+            date,
+            date | None,
+            date,
+            None,
+            date,
+            date | None,
+            date | None,
+        ]
+    ]:
+        calves = []
+        for calf in self.get_calves():
+            calves.append(calf.as_tuple())
+        return calves
+
     def get_ear_tags(self) -> list[int]:
         return [calf.ear_tag for calf in self.get_calves()]
 
-    def delete_calf(self, ear_tag: int):
+    def delete_calf(self, ear_tag: int, set_ringworm: bool = True):
         calf = self.get_calf(ear_tag)
         if isinstance(calf, FatteningCalf):
             self.fattening_calves.remove(calf)
         else:
             self.breeding_calves.remove(calf)
 
-        self.set_ringworm()
+        if set_ringworm:
+            self.set_ringworm()
 
     def set_ringworm(self):
         self.breeding_calves.sort(key=lambda calf: calf.birth.expected_date)
 
-        i = 0
+        i = 1
         ear_tag_slice = []
         ear_tag_slices = []
         for j in range(len(self.breeding_calves)):
@@ -175,6 +207,7 @@ class Farm:
                     == next_expected_ringworm1.get_week()
                     or i < 5
                 ):
+                    #
                     ear_tag_slice.append(cur.ear_tag)
                     i += 1
                 else:
@@ -183,25 +216,29 @@ class Farm:
                     ear_tag_slice = []
                     i = 1
             else:
+                # Last calf to be sorted
                 ear_tag_slice.append(cur.ear_tag)
                 ear_tag_slices.append(ear_tag_slice)
 
         for ear_tags_list in ear_tag_slices:
             if len(ear_tags_list) >= 5:
                 max_bovalto2_breeding_calf = max(
-                    self.breeding_calves, key=lambda calf: calf.bovalto_2
+                    (self.get_breeding_calf(ear_tag) for ear_tag in ear_tags_list),
+                    key=lambda calf: calf.bovalto_2,
+                    default=None,
                 )
 
                 for calf in self.breeding_calves:
                     if calf.ear_tag in ear_tags_list:
                         calf.recalc_ringworm(max_bovalto2_breeding_calf.bovalto_2)
 
-                # print(
-                #     f"The maximum Bovalto2 date among the selected ear tags is: {max_bovalto2_breeding_calf_date}"
-                # )
+                print(f"Ear tags in this week: {ear_tags_list}")
+                print(
+                    f"The maximum Bovalto2 date among the selected ear tags is: {max_bovalto2_breeding_calf.bovalto_2}"
+                )
 
             else:
-                # print("There are less than five calves in this week.")
+                print("There are less than five calves in this week.")
                 for calf in self.breeding_calves:
                     if calf.ear_tag in ear_tags_list:
                         calf.delete_ringworm()
@@ -231,3 +268,21 @@ class Farm:
                     )
 
         return jobs
+
+    def get_max_breeding_calf_ear_tag(self):
+        return max(
+            (calf.ear_tag for calf in self.breeding_calves),
+            default=0,
+        )
+
+    def get_max_fattening_calf_ear_tag(self):
+        return max(
+            (calf.ear_tag for calf in self.fattening_calves),
+            default=0,
+        )
+
+    def delete_calves(self, ear_tags: list[int]):
+        for ear_tag in ear_tags:
+            self.delete_calf(ear_tag, set_ringworm=False)
+
+        self.set_ringworm()
