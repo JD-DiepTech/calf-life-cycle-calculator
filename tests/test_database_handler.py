@@ -529,6 +529,14 @@ class TestDatabaseHandlerDeleteEntries:
             retrieved_entry = db_handler.fetch_birth_data(ear_tag_in)
             assert retrieved_entry == []
 
+    def test_delete_calf(self):
+        with DatabaseHandler(db_name="test.db", db_type="memory") as db_handler:
+            calf = BreedingCalf(dt.date(2023, 11, 20), Gender.Female, 12345, True)
+
+            db_handler.save_calf(calf)
+
+            db_handler.delete_calf(12345)
+
 
 class TestDatabaseHandlerIntegration:
     def test_save_calf(self):
