@@ -89,13 +89,13 @@ dehorning_required = expander.checkbox("Dehorning required", value=True)
 
 if expander.button("Add"):
     if calf_type == "breeding":
-        calf = BreedingCalf(birthdate, gender, ear_tag, dehorning_required)
+        ear_tag = BreedingCalf(birthdate, gender, ear_tag, dehorning_required)
     elif calf_type == "fattening":
-        calf = FatteningCalf(birthdate, gender, ear_tag, dehorning_required)
+        ear_tag = FatteningCalf(birthdate, gender, ear_tag, dehorning_required)
     else:
         raise Exception(f"Unknown calf type: {calf_type}")
 
-    farm.add_calf(calf)
+    farm.add_calf(ear_tag)
 
     with DatabaseHandler(db_name=DB_PATH) as db:
         db.save_farm(farm)
@@ -104,11 +104,29 @@ if expander.button("Add"):
 
 # -------------- VIEWS --------------
 if show_all_calves:
-    new_farm = view_all_calves(farm)
+    new_farm, delete_calves = view_all_calves(farm)
+
+    if delete_calves:
+        with DatabaseHandler(db_name=DB_PATH) as db:
+            for ear_tag in delete_calves:
+                db.delete_calf(int(ear_tag))
+
+        # Only rerun if there are no further changes
+        if not new_farm:
+            st.rerun()
+
+    if new_farm:
+        with DatabaseHandler(db_name=DB_PATH) as db:
+            for ear_tag in farm.get_ear_tags():
+                db.delete_calf(int(ear_tag))
+            db.save_farm(new_farm)
+        st.rerun()
+
+
 else:
     new_farm = view_jobs_per_week(farm)
 
-if new_farm:
-    with DatabaseHandler(db_name=DB_PATH) as db:
-        db.save_farm(new_farm)
-    st.rerun()
+    if new_farm:
+        with DatabaseHandler(db_name=DB_PATH) as db:
+            db.save_farm(new_farm)
+        st.rerun()

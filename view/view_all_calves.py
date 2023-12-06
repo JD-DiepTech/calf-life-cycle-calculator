@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from models.calf import FatteningCalf, BreedingCalf
 from models.farm import Farm
+from models.gender import Gender
 from models.treatment import (
     Birth,
     Bovalto1,
@@ -25,27 +26,321 @@ from data.db_handler import DatabaseHandler
 import streamlit as st
 import datetime as dt
 
+COLUMN_TO_TREATMENT = {
+    "0": None,  # Delete
+    "1": None,  # Ear Tag
+    "2": None,  # "breeding" or "fattening"
+    "3": Birth,
+    "4": Gender,
+    "5": None,  # Dehorning required
+    "6": Bovalto1,
+    "7": Dehorn,
+    "8": Restall,
+    "9": Sell,
+    "10": Bovalto2,
+    "11": Ringworm1,
+    "12": Ringworm2,
+}
+
+CONFIG = {
+    "0": st.column_config.CheckboxColumn(
+        label="Löschen?",
+        default=False,
+        required=True,
+    ),
+    "1": st.column_config.NumberColumn(
+        label="Ohrmarke",
+        default=int(5) + 1,
+        required=True,
+    ),
+    "2": st.column_config.SelectboxColumn(
+        label="Typ",
+        options=["breeding", "fattening"],
+        default="breeding",
+        required=True,
+    ),
+    "3": st.column_config.DateColumn(
+        label="Geburtsdatum",
+        format="DD.MM.YYYY",
+        default=dt.date.today(),
+        required=True,
+    ),
+    "4": st.column_config.SelectboxColumn(
+        label="Geschlecht",
+        options=["w", "m"],
+        default="w",
+        required=True,
+    ),
+    "5": st.column_config.CheckboxColumn(
+        label="Enthornung benötigt",
+        default=True,
+        required=True,
+    ),
+    "6": st.column_config.DateColumn(
+        label="Bovalto 1",
+        format="DD.MM.YYYY",
+        required=True,
+    ),
+    "7": st.column_config.DateColumn(label="Enthornung", format="DD.MM.YYYY"),
+    "8": st.column_config.DateColumn(
+        label="Umstallen", format="DD.MM.YYYY", required=True
+    ),
+    "9": st.column_config.DateColumn(label="Verkaufsdatum", format="DD.MM.YYYY"),
+    "10": st.column_config.DateColumn(label="Bovalto 2", format="DD.MM.YYYY"),
+    "11": st.column_config.DateColumn(label="Flechte 1", format="DD.MM.YYYY"),
+    "12": st.column_config.DateColumn(label="Flechte 2", format="DD.MM.YYYY"),
+}
+
 sort_by = "Birthdate"
 ascending = True
 
 
-def create_sidebar():
-    global sort_by, ascending
-
-    # Sort by selector
-    sort_by = st.sidebar.selectbox(
-        "Sort by",
-        options=["Ear Tag", "Birthdate"],
-        index=1,  # Birthdate
-    )
-
-    ascending = st.sidebar.toggle("Ascending Order", value=False)
+def create_sidebar(farm: Farm):
+    # global sort_by, ascending
+    #
+    # # Sort by selector
+    # sort_by = st.sidebar.selectbox(
+    #     "Sort by",
+    #     options=["Ear Tag", "Birthdate"],
+    #     index=1,  # Birthdate
+    # )
+    #
+    # ascending = st.sidebar.toggle("Ascending Order", value=False)
+    pass
 
 
 def view_all_calves(farm: Farm) -> Farm | None:
-    create_sidebar()
+    create_sidebar(farm)
 
     st.write("View all calves")
+
+    displayed_calves = farm.get_calves_as_tuple()
+
+    # Create a column to select and then delete calves
+    displayed_data = [(False,) + calf_data for calf_data in displayed_calves]
+
+    num_rows = len(displayed_data)
+    height = (
+        num_rows + 1
+    ) * 35 + 10  # 35px per row + 1 header row + 3px for the border
+
+    updated_calf_data = st.data_editor(
+        displayed_data,
+        hide_index=True,
+        height=height,
+        use_container_width=True,
+        # num_rows="dynamic",
+        column_config=CONFIG,
+        key="st_edited_calf_data",
+    )
+
+    # Debug changes
+    st.write(st.session_state["st_edited_calf_data"])
+
+    st_edited_rows = st.session_state["st_edited_calf_data"]["edited_rows"]
+    print(f"st_edited_rows: {st_edited_rows}")
+    delete_rows = []
+    edited_rows = []
+
+    # Check for changes in existing calves
+    if len(st_edited_rows) > 0:
+        # Check if the first column has been edited to True (that calf shall be deleted)
+        # Example: {29: {'0': False, '5': False}, 30: {'0': True, '5': False}, 31: {'0': True}, 32: {'0': False, '5': True}}
+        # It is possible that multiple calves have been edited to be deleted
+        # It is also possible that it has been edited and then edited back to False (i.e. calf 32 (the value before for "5" was also True))
+        # It is also possible that it has been edited and marked as deleted (i.e. calf 30 and 31)
+
+        for row_number, edited_values in st_edited_rows.items():
+            # Check if the first column has been edited to True (that calf shall be deleted)
+            if "0" in edited_values and edited_values["0"] is True:
+                delete_rows.append(row_number)
+            elif "0" not in edited_values or (
+                "0" in edited_values
+                and edited_values["0"] is False
+                and len(edited_values) > 1
+            ):
+                # The first column has not been edited
+                # OR, the first column has been edited and is false
+                #     AND, there are other columns that have been edited
+                # It needs to be double checked, if that edited value was set to value we had before
+                # If it is, then it is not an edit, and we can ignore it
+                # If it is not, then it is an edit, and we need to add it to the edited_rows list
+                for column, edited_value in edited_values.items():
+                    if column == "0":
+                        continue
+
+                    # Check if the edited value is the same as the value we had before
+                    # If it is, then it is not an edit, and we can ignore it
+                    # If it is not, then it is an edit, and we need to add it to the edited_rows list
+                    # We have to convert both values to strings, because bools will be treated as bools
+                    #  while DateTime objects will be treated as strings
+                    if str(edited_value) == str(
+                        displayed_data[row_number][int(column)]
+                    ):
+                        continue
+                    edited_rows.append(row_number)
+
+    print(f"delete_rows: {delete_rows}")
+    print(f"edited_rows: {edited_rows}")
+
+    if len(delete_rows) > 0 or len(edited_rows) > 0:
+        if st.button("Submit"):
+            delete_ear_tags = []
+            edited_eartags = []
+
+            if len(delete_rows) > 0:
+                for row in delete_rows:
+                    ear_tag = displayed_data[row][1]
+                    delete_ear_tags.append(ear_tag)
+
+                print(f"Delete calves: {delete_ear_tags}")
+                farm.delete_calves(delete_ear_tags)
+
+            if len(edited_rows) > 0:
+                for row in edited_rows:
+                    ear_tag = displayed_data[row][1]
+
+                    edited_cells = st_edited_rows[row].copy()
+
+                    # There might be a case where the user edits a cell, and then edits it back to the original value
+                    # While he also edited another cell
+                    for key, value in st_edited_rows[row].items():
+                        if str(value) == str(displayed_data[row][int(key)]):
+                            del edited_cells[key]
+
+                    if "0" in edited_cells:
+                        del edited_cells["0"]
+
+                    print(f"Edit calf: {ear_tag} - {edited_cells}")
+                    for key, value in edited_cells.items():
+                        calf = farm.get_calf(ear_tag)
+                        print(f"Edit calf: {ear_tag} - {key} - {value}")
+
+                        # TODO: Check if I can use a match statement here
+                        #       It might be a problem that we need to edit the calf in a certain order
+                        if key == "2":
+                            # Calf type changed
+                            # We need to delete the calf and add it again with the new type
+                            # This needs to be done first, because we need to retrieve the old calf
+                            print(f"Delete calf: {farm.get_calf(ear_tag)}")
+                            # Before we delete the calf, we need to retrieve all available treatments
+                            farm.delete_calf(ear_tag, set_ringworm=False)
+                            if value == "breeding":
+                                new_calf = BreedingCalf(
+                                    displayed_data[row][3],
+                                    displayed_data[row][4],
+                                    ear_tag,
+                                    displayed_data[row][5],
+                                )
+
+                            elif value == "fattening":
+                                new_calf = FatteningCalf(
+                                    displayed_data[row][3],
+                                    displayed_data[row][4],
+                                    ear_tag,
+                                    displayed_data[row][5],
+                                )
+
+                            else:
+                                raise Exception(f"Unknown calf type: {value}")
+
+                            new_calf.birth = calf.birth
+                            new_calf.bovalto_1 = calf.bovalto_1
+                            new_calf.dehorn = calf.dehorn
+                            new_calf.restall = calf.restall
+
+                            print(f"Add calf: {new_calf}")
+                            farm.add_calf(new_calf)
+
+                        elif key == "1":
+                            # Ear tag changes
+                            calf.change_ear_tag(value)
+
+                        elif key == "3":
+                            date = dt.datetime.strptime(value, "%Y-%m-%d").date()
+                            calf.edit_birth(date)
+                        elif key == "4":
+                            calf.edit_gender(Gender.from_string(value))
+                        elif key == "5":
+                            calf.reset_dehorn(displayed_data[row][7], value)
+                        elif key == "6":
+                            date = dt.datetime.strptime(value, "%Y-%m-%d").date()
+                            calf.edit_bovalto1(date)
+                        elif key == "7":
+                            if value is not None:
+                                date = dt.datetime.strptime(value, "%Y-%m-%d").date()
+                                calf.edit_dehorn(date)
+                            else:
+                                calf.delete_dehorn()
+                        elif key == "8":
+                            if value is not None:
+                                date = dt.datetime.strptime(value, "%Y-%m-%d").date()
+                                calf.edit_restall(date)
+                            else:
+                                st.error("Umstallen muss gesetzt werden")
+                        elif key == "9":
+                            if calf.calf_type == "fattening":
+                                if value is not None:
+                                    date = dt.datetime.strptime(
+                                        value, "%Y-%m-%d"
+                                    ).date()
+                                    calf.edit_sell(date)
+                                else:
+                                    st.error("Verkaufsdatum muss gesetzt werden")
+                            else:
+                                # Do nothing
+                                # A breeding calf cannot be sold
+                                continue
+                        elif key == "10":
+                            if calf.calf_type == "breeding":
+                                if value is not None:
+                                    date = dt.datetime.strptime(
+                                        value, "%Y-%m-%d"
+                                    ).date()
+                                    calf.edit_bovalto2(date)
+                                else:
+                                    st.error("Bovalto 2 muss gesetzt werden")
+                            else:
+                                # Do nothing
+                                # A fattening calf does not have a second bovalto
+                                continue
+                        elif key == "11":
+                            if calf.calf_type == "breeding":
+                                if value is not None:
+                                    date = dt.datetime.strptime(
+                                        value, "%Y-%m-%d"
+                                    ).date()
+                                    calf.edit_ringworm1(date)
+                                else:
+                                    calf.delete_ringworm1()
+                            else:
+                                # Do nothing
+                                # A fattening calf does not have a ringworm
+                                continue
+                        elif key == "12":
+                            if calf.calf_type == "breeding":
+                                if value is not None:
+                                    date = dt.datetime.strptime(
+                                        value, "%Y-%m-%d"
+                                    ).date()
+                                    calf.edit_ringworm2(date)
+                                else:
+                                    calf.delete_ringworm2()
+                            else:
+                                # Do nothing
+                                # A fattening calf does not have a ringworm
+                                continue
+
+                        print(f"Edited calf: {calf}")
+
+            print(f"New farm: {farm}")
+            return (
+                farm,
+                None if len(delete_ear_tags) == 0 else delete_ear_tags,
+            )
+
+    return (None, None)
+
     # displayed_data = calf_data.sort_values(by=sort_by, ascending=ascending)
     #
     # # Convert columns to datetime format
@@ -60,44 +355,7 @@ def view_all_calves(farm: Farm) -> Farm | None:
     #     displayed_data["Ear Tag"] < 99000, "Ear Tag"
     # ].max()
     #
-    # config = {
-    #     "Ear Tag": st.column_config.NumberColumn(
-    #         label="Ohrmarke",
-    #         default=int(max_breeding_ear_tag) + 1,
-    #         required=True,
-    #     ),
-    #     "Birthdate": st.column_config.DateColumn(
-    #         label="Geburtsdatum",
-    #         format="DD.MM.YYYY",
-    #         default=dt.date.today(),
-    #         required=True,
-    #     ),
-    #     "Gender": st.column_config.SelectboxColumn(
-    #         label="Geschlecht",
-    #         options=["w", "m"],
-    #         default="w",
-    #         required=True,
-    #     ),
-    #     "dehorning_required": st.column_config.CheckboxColumn(
-    #         label="Enthornung benötigt",
-    #         default=True,
-    #         required=True,
-    #     ),
-    #     "Bovalto1": st.column_config.DateColumn(
-    #         label="Bovalto 1",
-    #         format="DD.MM.YYYY",
-    #     ),
-    #     "Dehorn": st.column_config.DateColumn(label="Enthornung", format="DD.MM.YYYY"),
-    #     "Restall": st.column_config.DateColumn(label="Umstallen", format="DD.MM.YYYY"),
-    #     "Sell": st.column_config.DateColumn(label="Verkaufsdatum", format="DD.MM.YYYY"),
-    #     "Bovalto2": st.column_config.DateColumn(label="Bovalto 2", format="DD.MM.YYYY"),
-    #     "Ringworm1": st.column_config.DateColumn(
-    #         label="Flechte 1", format="DD.MM.YYYY"
-    #     ),
-    #     "Ringworm2": st.column_config.DateColumn(
-    #         label="Flechte 2", format="DD.MM.YYYY"
-    #     ),
-    # }
+    #
     #
     # numRows = len(displayed_data.index)
     # height = (
