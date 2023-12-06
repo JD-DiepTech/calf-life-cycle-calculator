@@ -223,6 +223,11 @@ class TestCalfOperations:
         setup_calf.change_ear_tag(54321)
         assert setup_calf.ear_tag == 54321
 
+    def test_edit_gender(self, setup_calf):
+        assert setup_calf.gender == Gender.Male
+        setup_calf.edit_gender(Gender.Female)
+        assert setup_calf.gender == Gender.Female
+
 
 class TestFatteningCalf:
     def test_calf_type(self, setup_fattening_calf):
