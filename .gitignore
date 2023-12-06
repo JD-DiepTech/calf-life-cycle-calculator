@@ -1,18 +1,16 @@
 /.git
+/.vs
 /venv
+*__pycache__*
 
 # Add maybe later
 /.idea
 
 # Remove all DBs
-/*.db
-/*.sqlite
-/*/*.db
-/*/*.sqlite
-/*.xlsx
-/*.csv
-/*/*.xlsx
-/*/*.csv
+*.db
+*.sqlite
+*.xlsx
+*.csv
 
 
 /tests/.pytest_cache
