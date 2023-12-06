@@ -302,6 +302,103 @@ class TestFarm:
         assert calf_4.ringworm_2.expected_date == dt.date(2024, 1, 16)
         assert calf_5.ringworm_2.expected_date == dt.date(2024, 1, 16)
 
+    def test_ringworm_creation_more_calves(self):
+        farm = Farm()
+        calf_1 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12341, True)
+        calf_2 = BreedingCalf("2023-11-18", Gender.from_str("m"), 12342, True)
+        calf_3 = BreedingCalf("2023-11-21", Gender.from_str("m"), 12343, True)
+        calf_4 = BreedingCalf("2023-11-24", Gender.from_str("m"), 12344, True)
+        calf_5 = BreedingCalf("2023-11-27", Gender.from_str("m"), 12345, True)
+        calf_6 = BreedingCalf("2024-11-15", Gender.from_str("m"), 12346, True)
+
+        assert calf_1.ringworm_1.expected_date == dt.date(2023, 12, 25)
+        assert calf_2.ringworm_1.expected_date == dt.date(2023, 12, 25)
+        assert calf_3.ringworm_1.expected_date == dt.date(2023, 12, 27)
+        assert calf_4.ringworm_1.expected_date == dt.date(2024, 1, 1)
+        assert calf_5.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_6.ringworm_1.expected_date == dt.date(2024, 12, 23)
+        assert calf_1.ringworm_2.expected_date == dt.date(2024, 1, 8)
+        assert calf_2.ringworm_2.expected_date == dt.date(2024, 1, 8)
+        assert calf_3.ringworm_2.expected_date == dt.date(2024, 1, 10)
+        assert calf_4.ringworm_2.expected_date == dt.date(2024, 1, 15)
+        assert calf_5.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_6.ringworm_2.expected_date == dt.date(2025, 1, 6)
+
+        farm.add_calf(calf_1)
+        calf_1 = farm.get_calf(12341)
+        assert calf_1.ringworm_1 is None
+        assert calf_1.ringworm_2 is None
+
+        farm.add_calf(calf_2)
+        calf_1 = farm.get_calf(12341)
+        calf_2 = farm.get_calf(12342)
+        assert calf_1.ringworm_1 is None
+        assert calf_1.ringworm_2 is None
+        assert calf_2.ringworm_1 is None
+        assert calf_2.ringworm_2 is None
+
+        farm.add_calf(calf_3)
+        calf_1 = farm.get_calf(12341)
+        calf_2 = farm.get_calf(12342)
+        calf_3 = farm.get_calf(12343)
+        assert calf_1.ringworm_1 is None
+        assert calf_1.ringworm_2 is None
+        assert calf_2.ringworm_1 is None
+        assert calf_2.ringworm_2 is None
+        assert calf_3.ringworm_1 is None
+        assert calf_3.ringworm_2 is None
+
+        farm.add_calf(calf_4)
+        calf_1 = farm.get_calf(12341)
+        calf_2 = farm.get_calf(12342)
+        calf_3 = farm.get_calf(12343)
+        calf_4 = farm.get_calf(12344)
+        assert calf_1.ringworm_1 is None
+        assert calf_1.ringworm_2 is None
+        assert calf_2.ringworm_1 is None
+        assert calf_2.ringworm_2 is None
+        assert calf_3.ringworm_1 is None
+        assert calf_3.ringworm_2 is None
+        assert calf_4.ringworm_1 is None
+        assert calf_4.ringworm_2 is None
+
+        farm.add_calf(calf_5)
+        calf_1 = farm.get_calf(12341)
+        calf_2 = farm.get_calf(12342)
+        calf_3 = farm.get_calf(12343)
+        calf_4 = farm.get_calf(12344)
+        calf_5 = farm.get_calf(12345)
+        assert calf_1.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_2.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_3.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_4.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_5.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_1.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_2.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_3.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_4.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_5.ringworm_2.expected_date == dt.date(2024, 1, 16)
+
+        farm.add_calf(calf_6)
+        calf_1 = farm.get_calf(12341)
+        calf_2 = farm.get_calf(12342)
+        calf_3 = farm.get_calf(12343)
+        calf_4 = farm.get_calf(12344)
+        calf_5 = farm.get_calf(12345)
+        calf_6 = farm.get_calf(12346)
+        assert calf_1.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_2.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_3.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_4.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_5.ringworm_1.expected_date == dt.date(2024, 1, 2)
+        assert calf_1.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_2.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_3.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_4.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_5.ringworm_2.expected_date == dt.date(2024, 1, 16)
+        assert calf_6.ringworm_1 is None
+        assert calf_6.ringworm_2 is None
+
     def test_get_jobs_in_week(self):
         farm = Farm()
         calf_1 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12341, True)
