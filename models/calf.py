@@ -102,7 +102,7 @@ class Calf:
         self._DEHORNING_REQUIRED = dehorning_required
         self.dehorn = Dehorn(self.bovalto_1) if self.dehorning_required else None
 
-        if self.dehorn.expected_date != date:
+        if self.dehorn is not None and self.dehorn.expected_date != date:
             self.dehorn.update(date)
 
         self.restall = Restall(self.dehorn or self.bovalto_1)

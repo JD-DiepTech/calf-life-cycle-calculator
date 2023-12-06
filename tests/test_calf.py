@@ -223,10 +223,25 @@ class TestCalfOperations:
         setup_calf.change_ear_tag(54321)
         assert setup_calf.ear_tag == 54321
 
-    def test_edit_gender(self, setup_calf):
-        assert setup_calf.gender == Gender.Male
-        setup_calf.edit_gender(Gender.Female)
-        assert setup_calf.gender == Gender.Female
+    @pytest.mark.parametrize(
+        "calf",
+        [
+            pytest.param(
+                FatteningCalf("2023-11-20", Gender.from_str("m"), 12345, True),
+                id="fattening_calf",
+            ),
+            pytest.param(
+                BreedingCalf("2023-11-20", Gender.from_str("m"), 12345, True),
+                id="breeding_calf",
+            ),
+        ],
+    )
+    def test_reset_dehorn(self, calf):
+        date = dt.date(2023, 11, 20)
+        assert calf.dehorning_required
+        calf.reset_dehorn(date, False)
+        assert not calf.dehorning_required
+        assert calf.dehorn is None
 
 
 class TestFatteningCalf:
