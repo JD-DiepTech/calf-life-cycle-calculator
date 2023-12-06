@@ -225,6 +225,7 @@ class Farm:
                 ear_tag_slices.append(ear_tag_slice)
 
         for ear_tags_list in ear_tag_slices:
+            print(f"Ear tags in this week: {ear_tags_list}")
             if len(ear_tags_list) >= 5:
                 max_bovalto2_breeding_calf = max(
                     (self.get_breeding_calf(ear_tag) for ear_tag in ear_tags_list),
@@ -236,7 +237,6 @@ class Farm:
                     if calf.ear_tag in ear_tags_list:
                         calf.recalc_ringworm(max_bovalto2_breeding_calf.bovalto_2)
 
-                print(f"Ear tags in this week: {ear_tags_list}")
                 print(
                     f"The maximum Bovalto2 date among the selected ear tags is: {max_bovalto2_breeding_calf.bovalto_2}"
                 )
