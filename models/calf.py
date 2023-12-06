@@ -138,6 +138,37 @@ class FatteningCalf(Calf):
 
         return printed_string
 
+    def as_tuple(
+        self,
+    ) -> tuple[
+        int,
+        str,
+        dt.date,
+        str,
+        bool,
+        dt.date,
+        dt.date | None,
+        dt.date,
+        dt.date,
+        None,
+        None,
+        None,
+    ]:
+        return (
+            self.ear_tag,
+            self.calf_type,
+            self.birthday,
+            str(self.gender),
+            self.dehorning_required,
+            self.bovalto_1.get_date(),
+            self.dehorn.get_date() if self.dehorn else None,
+            self.restall.get_date(),
+            self.sell.get_date(),
+            None,
+            None,
+            None,
+        )
+
     def reset(
         self,
         birth: Birth,
@@ -238,6 +269,37 @@ class BreedingCalf(Calf):
             self.ringworm_1,
             self.ringworm_2,
         ]
+
+    def as_tuple(
+        self,
+    ) -> tuple[
+        int,
+        str,
+        dt.date,
+        str,
+        bool,
+        dt.date,
+        dt.date | None,
+        dt.date,
+        None,
+        dt.date,
+        dt.date | None,
+        dt.date | None,
+    ]:
+        return (
+            self.ear_tag,
+            self.calf_type,
+            self.birthday,
+            str(self.gender),
+            self.dehorning_required,
+            self.bovalto_1.get_date(),
+            self.dehorn.get_date() if self.dehorn else None,
+            self.restall.get_date(),
+            None,
+            self.bovalto_2.get_date(),
+            self.ringworm_1.get_date() if self.ringworm_1 else None,
+            self.ringworm_2.get_date() if self.ringworm_2 else None,
+        )
 
     def reset(
         self,
