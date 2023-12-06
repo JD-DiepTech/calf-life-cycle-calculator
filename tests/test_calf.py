@@ -283,3 +283,19 @@ class TestFatteningCalf:
 class TestBreedingCalf:
     def test_calf_type(self, setup_breeding_calf):
         assert setup_breeding_calf.calf_type == "breeding"
+
+    def test_edit_ringworm1_while_None(self, setup_breeding_calf):
+        calf = setup_breeding_calf
+        assert calf.ringworm_1.expected_date == dt.date(2023, 12, 26)
+
+        calf.delete_ringworm()
+        assert calf.ringworm_1 is None
+        assert calf.ringworm_2 is None
+
+        calf.edit_ringworm1(dt.date(2023, 12, 25))
+        assert calf.ringworm_1 is not None
+        assert calf.ringworm_2 is not None
+        assert calf.ringworm_1.expected_date == dt.date(2023, 12, 26)
+        assert calf.ringworm_1.actual_date == dt.date(2023, 12, 25)
+        assert calf.ringworm_2.expected_date == dt.date(2024, 1, 8)
+        assert calf.ringworm_2.actual_date is None

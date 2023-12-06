@@ -378,6 +378,9 @@ class BreedingCalf(Calf):
         self.__update_treatments()
 
     def edit_ringworm1(self, date: dt.date):
+        if self.ringworm_1 is None:
+            self.ringworm_1 = Ringworm1(self.bovalto_2)
+
         self.ringworm_1.update(date)
 
         self.ringworm_2 = Ringworm2(self.ringworm_1)
