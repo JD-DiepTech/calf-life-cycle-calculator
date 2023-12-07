@@ -75,6 +75,26 @@ class TestFarm:
         farm.delete_calf(12345)
         assert len(farm) == 0
 
+    def test_uniform_birthdate_calves_management(self):
+        farm = Farm()
+        calf_1 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12341, True)
+        calf_2 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12342, False)
+        calf_3 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12343, True)
+        calf_4 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12344, False)
+        calf_5 = BreedingCalf("2023-11-15", Gender.from_str("m"), 12345, False)
+
+        farm.add_calves([calf_1, calf_2, calf_3, calf_4, calf_5])
+        assert farm.size == 5
+
+        farm.delete_calf(12345)
+        assert farm.size == 4
+
+        calf = farm.get_calf(12345)
+        assert calf is None
+
+        calf = farm.get_calf(12341)
+        assert calf.ringworm_1 is None
+
     def test_change_ear_tag(self):
         farm = Farm()
         calf = BreedingCalf("2023-11-20", Gender.from_str("m"), 12345, True)
@@ -552,15 +572,16 @@ class TestFarm:
         calf_5 = BreedingCalf("2023-11-27", Gender.from_str("m"), 12345, True)
 
         farm.add_calves([calf_1, calf_2, calf_3, calf_4, calf_5])
+        assert farm.size == 5
 
         calf = farm.get_calf(12341)
         assert calf.ringworm_1.expected_date == dt.date(2024, 1, 2)
 
         farm.delete_calf(12345)
-        with pytest.raises(Exception) as exc_info:
-            calf = farm.get_calf(12345)
+        assert farm.size == 4
 
-        assert str(exc_info.value) == "Breeding calf with ear tag 12345 not found"
+        calf = farm.get_calf(12345)
+        assert calf is None
 
         calf = farm.get_calf(12341)
         assert calf.ringworm_1 is None

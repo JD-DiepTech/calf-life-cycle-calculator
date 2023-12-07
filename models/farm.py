@@ -35,6 +35,10 @@ class Farm:
     def __repr__(self):
         return f"Farm({self.fattening_calves}, {self.breeding_calves})"
 
+    @property
+    def size(self):
+        return len(self.fattening_calves) + len(self.breeding_calves)
+
     def add_calves(
         self, calves: list[FatteningCalf | BreedingCalf], set_ringworm: bool = True
     ):
@@ -144,11 +148,15 @@ class Farm:
                 return calf
         raise Exception(f"Breeding calf with ear tag {ear_tag} not found")
 
-    def get_calf(self, ear_tag: int) -> FatteningCalf | BreedingCalf:
+    def get_calf(self, ear_tag: int) -> FatteningCalf | BreedingCalf | None:
         try:
             return self.get_fattening_calf(ear_tag)
         except Exception:
-            return self.get_breeding_calf(ear_tag)
+            try:
+                return self.get_breeding_calf(ear_tag)
+            except Exception:
+                print(f"Calf with ear tag {ear_tag} not found")
+                return None
 
     def get_calves(self) -> list[FatteningCalf | BreedingCalf]:
         return self.fattening_calves + self.breeding_calves
@@ -183,11 +191,12 @@ class Farm:
         return [calf.ear_tag for calf in self.get_calves()]
 
     def delete_calf(self, ear_tag: int, set_ringworm: bool = True):
-        calf = self.get_calf(ear_tag)
-        if isinstance(calf, FatteningCalf):
-            self.fattening_calves.remove(calf)
-        else:
-            self.breeding_calves.remove(calf)
+        self.breeding_calves = list(
+            filter(lambda x: x.ear_tag != ear_tag, self.breeding_calves)
+        )
+        self.fattening_calves = list(
+            filter(lambda x: x.ear_tag != ear_tag, self.fattening_calves)
+        )
 
         if set_ringworm:
             self.set_ringworm()
