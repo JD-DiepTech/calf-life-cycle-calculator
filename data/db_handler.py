@@ -120,6 +120,14 @@ def create_database():
     conn.close()
 
 
+def delete(database_file):
+    if os.path.exists(database_file):
+        os.remove(database_file)
+        print(f"{database_file} has been deleted.")
+    else:
+        print(f"{database_file} does not exist.")
+
+
 class DatabaseHandler:
     required_tables = [
         "calf",

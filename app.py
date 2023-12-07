@@ -1,6 +1,7 @@
 from view.view_jobs_per_week import view_jobs_per_week
 from view.view_all_calves import view_all_calves
 from data.db_handler import DatabaseHandler
+import data.db_handler as db
 from models.farm import Farm
 from models.gender import Gender
 from models.calf import FatteningCalf, BreedingCalf
@@ -57,8 +58,8 @@ calves = []
 
 # Issue #1
 # This needs to be done only on startup
-with DatabaseHandler(db_name=DB_PATH) as db:
-    calves = db.fetch_all_calves()
+with DatabaseHandler(db_name=DB_PATH) as dbh:
+    calves = dbh.fetch_all_calves()
 
 farm = Farm()
 
@@ -97,8 +98,8 @@ if expander.button("Add"):
 
     farm.add_calf(ear_tag)
 
-    with DatabaseHandler(db_name=DB_PATH) as db:
-        db.save_farm(farm)
+    with DatabaseHandler(db_name=DB_PATH) as dbh:
+        dbh.save_farm(farm)
     st.rerun()
 
 
@@ -106,20 +107,10 @@ if expander.button("Add"):
 if show_all_calves:
     new_farm, delete_calves = view_all_calves(farm)
 
-    if delete_calves:
-        with DatabaseHandler(db_name=DB_PATH) as db:
-            for ear_tag in delete_calves:
-                db.delete_calf(int(ear_tag))
-
-        # Only rerun if there are no further changes
-        if not new_farm:
-            st.rerun()
-
     if new_farm:
-        with DatabaseHandler(db_name=DB_PATH) as db:
-            for ear_tag in farm.get_ear_tags():
-                db.delete_calf(int(ear_tag))
-            db.save_farm(new_farm)
+        db.delete(DB_PATH)
+        with DatabaseHandler(db_name=DB_PATH) as dbh:
+            dbh.save_farm(new_farm)
         st.rerun()
 
 
@@ -127,6 +118,6 @@ else:
     new_farm = view_jobs_per_week(farm)
 
     if new_farm:
-        with DatabaseHandler(db_name=DB_PATH) as db:
-            db.save_farm(new_farm)
+        with DatabaseHandler(db_name=DB_PATH) as dbh:
+            dbh.save_farm(new_farm)
         st.rerun()
