@@ -283,10 +283,13 @@ class Farm:
         return jobs
 
     def get_max_breeding_calf_ear_tag(self):
-        return max(
-            (calf.ear_tag for calf in self.breeding_calves),
-            default=0,
-        )
+        # There might be some calves with ear tags starting with 99 (falsly tagged)
+        filtered_tags = [
+            int(calf.ear_tag)
+            for calf in self.breeding_calves
+            if not calf.ear_tag.startswith("99")
+        ]
+        return max(filtered_tags, default=0)
 
     def get_max_fattening_calf_ear_tag(self):
         return max(
