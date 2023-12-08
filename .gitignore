@@ -12,6 +12,8 @@
 *.xlsx
 *.csv
 
+# Remove all backups
+*.bak
 
 /tests/.pytest_cache
 
