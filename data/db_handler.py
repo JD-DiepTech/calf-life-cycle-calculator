@@ -24,6 +24,7 @@ from models.calf import BreedingCalf, FatteningCalf
 from models.farm import Farm
 import datetime as dt
 
+
 database_creation_script = f"""
 -- Create the calf table
 CREATE TABLE calf (
@@ -154,9 +155,7 @@ class DatabaseHandler:
         self.cursor = self.connection.cursor()
 
         # WARNING: This creates a difference between different types of databases
-        if self.db_type == "memory":
-            self.execute_query(database_creation_script)
-        elif self.db_type == "sqlite":
+        if self.db_type == "memory" or self.db_type == "sqlite":
             # Sanity check: Check if the database is not initialized yet
             if not self.check_all_tables_exist():
                 # Create the database
@@ -188,16 +187,16 @@ class DatabaseHandler:
         if self.db_type == "sqlite":
             self.connection = sqlite3.connect(self.db_name)
             self.cursor = self.connection.cursor()
-            print("Connected to SQLite database")
         elif self.db_type == "questdb":
             # Implement connection logic for QuestDB here
             pass
         elif self.db_type == "memory":
             self.connection = sqlite3.connect(":memory:")
             self.cursor = self.connection.cursor()
-            print("Connected to SQLite database")
         else:
             raise ValueError("Unsupported database type")
+
+        print("Connected to SQLite database")
 
         return self.connection
 
@@ -240,15 +239,14 @@ class DatabaseHandler:
         ear_tag: int,
         planned: dt.date,
         actual: dt.date | None = None,
-    ):
+    ) -> str:
         # Insert data in a table
         query = f"""
             INSERT OR REPLACE INTO {table_name} (ear_tag, planned, actual)
-            VALUES ({ear_tag}, '{planned}', '{actual}')
+            VALUES ({ear_tag}, '{planned}', '{actual}');
         """
 
-        self.cursor.execute(query)
-        self.connection.commit()
+        return query
 
     def convert_treatment_entries(self, entries: list[tuple]) -> list[tuple]:
         # Convert the date strings to datetime.date objects
@@ -267,7 +265,7 @@ class DatabaseHandler:
 
         return converted_entries
 
-    def fetch_calf_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_calf_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'calf' table
         retrieved_entries = self.__fetch_data("calf", ear_tag)
 
@@ -282,7 +280,7 @@ class DatabaseHandler:
 
         return converted_entries
 
-    def fetch_weight_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_weight_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'weight' table
         retrieved_entries = self.__fetch_data("weight", ear_tag)
 
@@ -297,198 +295,218 @@ class DatabaseHandler:
 
         return converted_entries
 
-    def fetch_birth_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_birth_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'birth' table
         retrieved_entries = self.__fetch_data(Birth.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_bovalto1_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_bovalto1_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'bovalto1' table
         retrieved_entries = self.__fetch_data(Bovalto1.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_dehorn_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_dehorn_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'dehorn' table
         retrieved_entries = self.__fetch_data(Dehorn.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_restall_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_restall_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'restall' table
         retrieved_entries = self.__fetch_data(Restall.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_sell_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_sell_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'sell' table
         retrieved_entries = self.__fetch_data(Sell.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_bovalto2_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_bovalto2_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'bovalto2' table
         retrieved_entries = self.__fetch_data(Bovalto2.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_ringworm1_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_ringworm1_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'ringworm1' table
         retrieved_entries = self.__fetch_data(Ringworm1.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def fetch_ringworm2_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_ringworm2_data(self, ear_tag: int | None = None) -> list[tuple]:
         # Fetch data related to a specific calf from the 'ringworm2' table
         retrieved_entries = self.__fetch_data(Ringworm2.__name__.lower(), ear_tag)
 
         # Convert the date strings to datetime.date objects
         return self.convert_treatment_entries(retrieved_entries)
 
-    def insert_calf_data(self, ear_tag: int, gender: Gender, calf_type: str):
+    def __insert_calf_data(self, ear_tag: int, gender: Gender, calf_type: str) -> str:
         if calf_type not in ["breeding", "fattening"]:
             raise ValueError("Invalid calf type")
 
         query = f"""
             INSERT OR REPLACE INTO calf (ear_tag, gender, type)
-            VALUES ({ear_tag}, '{gender}', '{calf_type}')
+            VALUES ({ear_tag}, '{gender}', '{calf_type}');
         """
 
-        self.cursor.execute(query)
-        self.connection.commit()
+        return query
 
-    def insert_weight(self, ear_tag: int, weight: int, date: dt.date):
+    def __insert_weight(self, ear_tag: int, weight: int, date: dt.date) -> str:
         query = f"""
             INSERT OR REPLACE INTO calf (ear_tag, date, kg)
-            VALUES ({ear_tag}, '{date}', '{weight}')
+            VALUES ({ear_tag}, '{date}', '{weight}');
         """
 
-        self.cursor.execute(query)
-        self.connection.commit()
+        return query
 
-    def insert_birth_data(
+    def __insert_birth_data(
         self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Birth.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_bovalto1_data(
+    def __insert_bovalto1_data(
         self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Bovalto1.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_dehorn_data(
+    def __insert_dehorn_data(
         self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Dehorn.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_restall_data(
+    def __insert_restall_data(
         self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Restall.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_sell_data(
+    def __insert_sell_data(
         self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Sell.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_bovalto2_data(
+    def __insert_bovalto2_data(
         self, ear_tag: int, planned: dt.date, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Bovalto2.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_ringworm1_data(
+    def __insert_ringworm1_data(
         self, ear_tag: int, planned: dt.date | None, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Ringworm1.__name__.lower(), ear_tag, planned, actual
         )
 
-    def insert_ringworm2_data(
+    def __insert_ringworm2_data(
         self, ear_tag: int, planned: dt.date | None, actual: dt.date | None = None
-    ):
+    ) -> str:
         return self.__insert_treatment_data(
             Ringworm2.__name__.lower(), ear_tag, planned, actual
         )
 
-    def save_breeding_calf(self, calf: BreedingCalf):
-        self.insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
-        self.insert_birth_data(
+    def __generate_breeding_calf_query(self, calf: BreedingCalf):
+        query = ""
+        query += self.__insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
+        query += self.__insert_birth_data(
             calf.ear_tag, calf.birth.expected_date, calf.birth.actual_date
         )
-        self.insert_bovalto1_data(
+        query += self.__insert_bovalto1_data(
             calf.ear_tag, calf.bovalto_1.expected_date, calf.bovalto_1.actual_date
         )
         if calf.dehorn:
-            self.insert_dehorn_data(
+            query += self.__insert_dehorn_data(
                 calf.ear_tag, calf.dehorn.expected_date, calf.dehorn.actual_date
             )
-        self.insert_restall_data(
+        query += self.__insert_restall_data(
             calf.ear_tag, calf.restall.expected_date, calf.restall.actual_date
         )
-        self.insert_bovalto2_data(
+        query += self.__insert_bovalto2_data(
             calf.ear_tag, calf.bovalto_2.expected_date, calf.bovalto_2.actual_date
         )
 
         if calf.ringworm_1:
-            self.insert_ringworm1_data(
+            query += self.__insert_ringworm1_data(
                 calf.ear_tag, calf.ringworm_1.expected_date, calf.ringworm_1.actual_date
             )
 
         if calf.ringworm_2:
-            self.insert_ringworm2_data(
+            query += self.__insert_ringworm2_data(
                 calf.ear_tag, calf.ringworm_2.expected_date, calf.ringworm_2.actual_date
             )
 
-    def save_fattening_calf(self, calf: FatteningCalf):
-        self.insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
-        self.insert_birth_data(
+        return query
+
+    def __generate_fattening_calf_query(self, calf: FatteningCalf):
+        query = ""
+        query += self.__insert_calf_data(calf.ear_tag, calf.gender, calf.calf_type)
+        query += self.__insert_birth_data(
             calf.ear_tag, calf.birth.expected_date, calf.birth.actual_date
         )
-        self.insert_bovalto1_data(
+        query += self.__insert_bovalto1_data(
             calf.ear_tag, calf.bovalto_1.expected_date, calf.bovalto_1.actual_date
         )
         if calf.dehorn:
-            self.insert_dehorn_data(
+            query += self.__insert_dehorn_data(
                 calf.ear_tag, calf.dehorn.expected_date, calf.dehorn.actual_date
             )
-        self.insert_restall_data(
+        query += self.__insert_restall_data(
             calf.ear_tag, calf.restall.expected_date, calf.restall.actual_date
         )
-        self.insert_sell_data(
+        query += self.__insert_sell_data(
             calf.ear_tag, calf.sell.expected_date, calf.sell.actual_date
         )
 
-    def save_calf(self, calf: BreedingCalf | FatteningCalf):
+        return query
+
+    def save_calf(
+        self, calf: BreedingCalf | FatteningCalf, execute: bool = True
+    ) -> str | None:
+        query = ""
         if isinstance(calf, BreedingCalf):
-            self.save_breeding_calf(calf)
+            query += self.__generate_breeding_calf_query(calf)
         elif isinstance(calf, FatteningCalf):
-            self.save_fattening_calf(calf)
+            query += self.__generate_fattening_calf_query(calf)
         else:
             raise ValueError("Unsupported calf type")
 
+        if execute:
+            self.cursor.executescript(query)
+            self.connection.commit()
+            return None
+        else:
+            return query
+
     def save_farm(self, farm: Farm):
+        query = "BEGIN;\n"
         for calf in farm.get_calves():
-            self.save_calf(calf)
+            query += self.save_calf(calf, execute=False)
+
+        query += "COMMIT;"
+        self.cursor.executescript(query)
+
+        self.connection.commit()
 
     def fetch_calf(self, ear_tag: int) -> BreedingCalf | FatteningCalf | None:
         """
@@ -499,14 +517,14 @@ class DatabaseHandler:
         :param ear_tag: The ear tag of the calf to fetch
         :return: BreedingCalf or FatteningCalf object, and None if the ear tag is not found
         """
-        calf_data = self.fetch_calf_data(ear_tag)[0]
+        calf_data = self.__fetch_calf_data(ear_tag)[0]
         if len(calf_data) == 0:
             return None
 
-        birth_data = self.fetch_birth_data(ear_tag)[0]
-        bovalto1_data = self.fetch_bovalto1_data(ear_tag)[0]
-        dehorn_data = self.fetch_dehorn_data(ear_tag)  # Might be empty
-        restall_data = self.fetch_restall_data(ear_tag)[0]
+        birth_data = self.__fetch_birth_data(ear_tag)[0]
+        bovalto1_data = self.__fetch_bovalto1_data(ear_tag)[0]
+        dehorn_data = self.__fetch_dehorn_data(ear_tag)  # Might be empty
+        restall_data = self.__fetch_restall_data(ear_tag)[0]
 
         gender = calf_data[1]
         calf_type = calf_data[2]
@@ -552,9 +570,9 @@ class DatabaseHandler:
                 dehorning_required,
             )
 
-            bovalto2_data = self.fetch_bovalto2_data(ear_tag)[0]
-            ringworm1_data = self.fetch_ringworm1_data(ear_tag)  # Might be empty
-            ringworm2_data = self.fetch_ringworm2_data(ear_tag)  # Might be empty
+            bovalto2_data = self.__fetch_bovalto2_data(ear_tag)[0]
+            ringworm1_data = self.__fetch_ringworm1_data(ear_tag)  # Might be empty
+            ringworm2_data = self.__fetch_ringworm2_data(ear_tag)  # Might be empty
 
             bovalto2_planned = bovalto2_data[1]
             bovalto2_actual = bovalto2_data[2]
@@ -593,7 +611,7 @@ class DatabaseHandler:
                 dehorning_required,
             )
 
-            sell_data = self.fetch_sell_data(ear_tag)[0]
+            sell_data = self.__fetch_sell_data(ear_tag)[0]
             sell_planned = sell_data[1]
             sell_actual = sell_data[2]
 
@@ -622,7 +640,7 @@ class DatabaseHandler:
         :return: list of BreedingCalf and FatteningCalf objects
         """
         calves = []
-        calf_data = self.fetch_calf_data()
+        calf_data = self.__fetch_calf_data()
         for calf in calf_data:
             ear_tag = calf[0]
             calf = self.fetch_calf(ear_tag)
