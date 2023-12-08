@@ -6,11 +6,8 @@ from models.farm import Farm
 from models.gender import Gender
 from models.calf import FatteningCalf, BreedingCalf
 
-import pandas as pd
-import numpy as np
 import streamlit as st
 import datetime as dt
-import time
 
 
 DB_PATH = "data/calves.sqlite"

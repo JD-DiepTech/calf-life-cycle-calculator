@@ -1,6 +1,5 @@
 import datetime as dt
 from models.day import Day, handle_weekends, get_next_tuesday
-import pandas as pd
 
 
 class Treatment:
