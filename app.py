@@ -12,6 +12,8 @@ import datetime as dt
 
 DB_PATH = "data/calves.sqlite"
 DB_TYPE = "sqlite"
+BREDING_STR = "breeding"
+FATTENING_STR = "fattening"
 
 
 def save(db_path, db_type, farm):
@@ -44,18 +46,20 @@ ear_tag = expander.number_input(
     "Ear Tag", value=max_ear_tag + 1, min_value=0, max_value=99999
 )
 calf_type = expander.selectbox(
-    "Typ: ", options=["breeding", "fattening"], index=0  # breeding
+    "Typ: ",
+    options=[BREDING_STR, FATTENING_STR],
+    index=0,  # breeding
 )
 birthdate = expander.date_input("Birthdate", value=dt.date.today(), format="DD.MM.YYYY")
 gender = expander.selectbox(
-    "Gender", options=[Gender.Female, Gender.Male], index=0
-)  # w
+    "Gender", options=[Gender.Female, Gender.Male], index=0  # w
+)
 dehorning_required = expander.checkbox("Dehorning required", value=True)
 
 if expander.button("Add"):
-    if calf_type == "breeding":
+    if calf_type == BREDING_STR:
         new_calf = BreedingCalf(birthdate, gender, ear_tag, dehorning_required)
-    elif calf_type == "fattening":
+    elif calf_type == FATTENING_STR:
         new_calf = FatteningCalf(birthdate, gender, ear_tag, dehorning_required)
     else:
         raise Exception(f"Unknown calf type: {calf_type}")
