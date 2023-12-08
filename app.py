@@ -14,56 +14,23 @@ import time
 
 
 DB_PATH = "data/calves.sqlite"
+DB_TYPE = "sqlite"
 
 
-def fade_out(handler, message, icon):
-    # st.toast(message, icon="✅")
-    # st.success(message, icon="✅")
-
-    global ok_message, ok_css
-    ok_message.empty()
-    ok_css.empty()
-    ok_css.markdown(
-        """
-        <style>
-            .stAlert {
-                opacity: 1;
-                anmation: None;
-            }
-        </style>""",
-        unsafe_allow_html=True,
-    )
-    time.sleep(0.1)
-    handler(message, icon=icon)
-    ok_css.markdown(
-        """
-        <style>
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-            .stAlert {
-                animation-name: fadeOut;
-                animation-duration:  5s;
-                opacity: 0;
-            }
-        </style>
-    """,
-        unsafe_allow_html=True,
-    )
+def save(db_path, db_type, farm):
+    with DatabaseHandler(db_name=db_path, db_type=db_type) as dbh:
+        dbh.save_farm(farm)
 
 
 st.set_page_config(page_title="Kälberliste", page_icon="🐮", layout="wide")
 calves = []
 
-# Issue #1
-# This needs to be done only on startup
-with DatabaseHandler(db_name=DB_PATH) as dbh:
+with DatabaseHandler(db_name=DB_PATH, db_type="sqlite") as dbh:
     calves = dbh.fetch_all_calves()
 
 farm = Farm()
 
-# #2: Since the data directly comes from the database
+# Since the data directly comes from the database,
 # we don't need to set the ringworm
 farm.add_calves(calves, set_ringworm=False)
 max_ear_tag = farm.get_max_breeding_calf_ear_tag()
@@ -90,16 +57,17 @@ dehorning_required = expander.checkbox("Dehorning required", value=True)
 
 if expander.button("Add"):
     if calf_type == "breeding":
-        ear_tag = BreedingCalf(birthdate, gender, ear_tag, dehorning_required)
+        new_calf = BreedingCalf(birthdate, gender, ear_tag, dehorning_required)
     elif calf_type == "fattening":
-        ear_tag = FatteningCalf(birthdate, gender, ear_tag, dehorning_required)
+        new_calf = FatteningCalf(birthdate, gender, ear_tag, dehorning_required)
     else:
         raise Exception(f"Unknown calf type: {calf_type}")
 
-    farm.add_calf(ear_tag)
+    farm.add_calf(new_calf)
 
-    with DatabaseHandler(db_name=DB_PATH) as dbh:
-        dbh.save_farm(farm)
+    # We have to safe the whole farm incase other calves were changed
+    # This happens when we have to set the ringworm
+    save(DB_PATH, DB_TYPE, farm)
     st.rerun()
 
 
@@ -109,8 +77,7 @@ if show_all_calves:
 
     if new_farm:
         db.delete(DB_PATH)
-        with DatabaseHandler(db_name=DB_PATH) as dbh:
-            dbh.save_farm(new_farm)
+        save(DB_PATH, DB_TYPE, farm)
         st.rerun()
 
 
@@ -118,6 +85,5 @@ else:
     new_farm = view_jobs_per_week(farm)
 
     if new_farm:
-        with DatabaseHandler(db_name=DB_PATH) as dbh:
-            dbh.save_farm(new_farm)
+        save(DB_PATH, DB_TYPE, farm)
         st.rerun()
