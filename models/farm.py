@@ -287,7 +287,7 @@ class Farm:
         filtered_tags = [
             int(calf.ear_tag)
             for calf in self.breeding_calves
-            if not calf.ear_tag.startswith("99")
+            if not str(calf.ear_tag).startswith("99")
         ]
         return max(filtered_tags, default=0)
 
