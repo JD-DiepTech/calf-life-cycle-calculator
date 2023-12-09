@@ -280,7 +280,9 @@ class DatabaseHandler:
 
         return converted_entries
 
-    def __fetch_weight_data(self, ear_tag: int | None = None) -> list[tuple]:
+    def __fetch_weight_data(
+        self, ear_tag: int | None = None
+    ) -> list[tuple[dt.date, int]]:
         # Fetch data related to a specific calf from the 'weight' table
         retrieved_entries = self.__fetch_data("weight", ear_tag)
 
@@ -288,8 +290,8 @@ class DatabaseHandler:
         converted_entries = []
         for entry in retrieved_entries:
             converted_entry = (
-                entry[0],
                 dt.datetime.strptime(entry[1], "%Y-%m-%d").date(),
+                entry[2],
             )
             converted_entries.append(converted_entry)
 
@@ -362,7 +364,7 @@ class DatabaseHandler:
 
         return query
 
-    def __insert_weight(self, ear_tag: int, weight: int, date: dt.date) -> str:
+    def __insert_weight(self, ear_tag: int, date: dt.date, weight: int) -> str:
         query = f"""
             INSERT OR REPLACE INTO calf (ear_tag, date, kg)
             VALUES ({ear_tag}, '{date}', '{weight}');
@@ -667,6 +669,32 @@ class DatabaseHandler:
             self.connection.commit()
         except sqlite3.Error as e:
             print(f"Error deleting entries: {e}")
+
+    def fetch_calf_weights(self, ear_tag: int) -> list[tuple[dt.date, int]]:
+        return self.__fetch_weight_data(ear_tag)
+
+    def save_calf_weight(
+        self, ear_tag: int, date: dt.date, weight: int, execute: bool = True
+    ) -> str | None:
+        query = self.__insert_weight(ear_tag, date, weight)
+
+        if execute:
+            self.cursor.executescript(query)
+            self.connection.commit()
+            return None
+
+        return query
+
+    def save_calf_weights(self, ear_tag: int, data: list[tuple[dt.date, int]]) -> None:
+        query = ""
+
+        for entry in data:
+            print(entry)
+            query += self.save_calf_weight(ear_tag, entry[0], entry[1], execute=False)
+
+        print(query)
+        # self.cursor.executescript(query)
+        # self.connection.commit()
 
 
 if __name__ == "__main__":
