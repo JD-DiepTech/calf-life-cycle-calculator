@@ -10,7 +10,7 @@ import datetime as dt
 
 DB_PATH = "data/calves.sqlite"
 DB_TYPE = "sqlite"
-BREDING_STR = "breeding"
+BREEDING_STR = "breeding"
 FATTENING_STR = "fattening"
 CONFIG = {
     "0": st.column_config.CheckboxColumn(
@@ -78,7 +78,7 @@ def create_sidebar(farm):
     )
     calf_type = expander.selectbox(
         "Typ: ",
-        options=[BREDING_STR, FATTENING_STR],
+        options=[BREEDING_STR, FATTENING_STR],
         index=0,  # breeding
     )
     birthdate = expander.date_input(
@@ -90,7 +90,7 @@ def create_sidebar(farm):
     dehorning_required = expander.checkbox("Dehorning required", value=True)
 
     if expander.button("Add"):
-        if calf_type == BREDING_STR:
+        if calf_type == BREEDING_STR:
             new_calf = BreedingCalf(birthdate, gender, ear_tag, dehorning_required)
         elif calf_type == FATTENING_STR:
             new_calf = FatteningCalf(birthdate, gender, ear_tag, dehorning_required)
