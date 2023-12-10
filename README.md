@@ -1,5 +1,4 @@
 # Calf Life Cycle Calculator
-## Description
 Welcome to the Calf Life Cycle Calculator—a comprehensive program designed to monitor and support the early stages of a calf's life journey. This tool meticulously tracks the developmental milestones and health metrics vital for the nurturing of a calf into a robust, thriving cow.
 
 ### Key Features:
