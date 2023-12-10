@@ -92,12 +92,22 @@ def create_sidebar(farm: Farm):
         save(DB_PATH, DB_TYPE, farm)
         st.rerun()
 
-    global DISPLAY_CALF
-    DISPLAY_CALF = st.sidebar.selectbox(
-        "Select Calf",
-        options=sorted(farm.get_ear_tags(), reverse=True),
-        index=0,
+    st.sidebar.header("Filter Calves")
+    show_breeding_calves = st.sidebar.checkbox("Show breeding calves", value=True)
+    show_fattening_calves = st.sidebar.checkbox("Show fattening calves", value=True)
+
+    calves_options = (
+        sorted(farm.get_all_ear_tags(), reverse=True)
+        if show_breeding_calves and show_fattening_calves
+        else sorted(farm.get_fattening_calves_ear_tags(), reverse=True)
+        if show_fattening_calves
+        else sorted(farm.get_breeding_calves_ear_tags(), reverse=True)
+        if show_breeding_calves
+        else []
     )
+
+    global DISPLAY_CALF
+    DISPLAY_CALF = st.sidebar.selectbox("Select Calf", options=calves_options, index=0)
 
 
 def main() -> None:

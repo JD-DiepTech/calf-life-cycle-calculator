@@ -31,7 +31,7 @@ class TestFarm:
         farm.add_calf(calf)
         assert farm.get_calf(12345) == calf
         assert farm.get_calves() == [calf]
-        assert farm.get_ear_tags() == [12345]
+        assert farm.get_all_ear_tags() == [12345]
         assert len(farm) == 1
         assert farm.__sizeof__() == 1
         assert str(farm) == "Farm with 0 fattening calves and 1 breeding calves"
@@ -51,7 +51,7 @@ class TestFarm:
         farm.add_calves([calf_1, calf_2, calf_3, calf_4, calf_5])
         assert len(farm) == 5
         assert farm.get_calves() == [calf_1, calf_2, calf_3, calf_4, calf_5]
-        assert farm.get_ear_tags() == [12341, 12342, 12343, 12344, 12345]
+        assert farm.get_all_ear_tags() == [12341, 12342, 12343, 12344, 12345]
 
     def test_add_calf_same_ear_tag(self):
         farm = Farm()

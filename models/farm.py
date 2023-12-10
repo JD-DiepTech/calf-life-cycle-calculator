@@ -47,7 +47,7 @@ class Farm:
 
     def add_calf(self, calf: FatteningCalf | BreedingCalf, set_ringworm: bool = True):
         # Ear tags must be unique
-        if calf.ear_tag in self.get_ear_tags():
+        if calf.ear_tag in self.get_all_ear_tags():
             raise Exception(f"Ear tag {calf.ear_tag} already exists")
 
         if isinstance(calf, FatteningCalf):
@@ -61,14 +61,14 @@ class Farm:
 
     def __add_fattening_calf(self, calf: FatteningCalf):
         # Ear tags must be unique
-        if calf.ear_tag in self.get_ear_tags():
+        if calf.ear_tag in self.get_all_ear_tags():
             raise Exception(f"Ear tag {calf.ear_tag} already exists")
 
         self.fattening_calves.append(calf)
 
     def __add_breeding_calf(self, calf: BreedingCalf, set_ringworm: bool = True):
         # Ear tags must be unique
-        if calf.ear_tag in self.get_ear_tags():
+        if calf.ear_tag in self.get_all_ear_tags():
             raise Exception(f"Ear tag {calf.ear_tag} already exists")
 
         self.breeding_calves.append(calf)
@@ -187,7 +187,13 @@ class Farm:
             calves.append(calf.as_tuple())
         return calves
 
-    def get_ear_tags(self) -> list[int]:
+    def get_breeding_calves_ear_tags(self) -> list[int]:
+        return [calf.ear_tag for calf in self.breeding_calves]
+
+    def get_fattening_calves_ear_tags(self) -> list[int]:
+        return [calf.ear_tag for calf in self.fattening_calves]
+
+    def get_all_ear_tags(self) -> list[int]:
         return [calf.ear_tag for calf in self.get_calves()]
 
     def delete_calf(self, ear_tag: int, set_ringworm: bool = True):
